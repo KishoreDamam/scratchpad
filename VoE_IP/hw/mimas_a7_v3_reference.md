@@ -82,27 +82,80 @@ Reference design bring-up (from its README): program `.bit`, then load `.elf`
 over JTAG, serial at 9600 baud, board answers telnet echo on port 7 at
 192.168.1.10. Set the host NIC to 192.168.1.15/24.
 
-## Still missing: the schematic
+## PHY strapping (from schematic `MimasA7_V3.1_Sch.pdf`, sheet 11 "Ethernet")
 
-`numato.com` is blocked by this environment's egress proxy, and the GitHub repos
-carry no schematic PDF. The board files give us the complete FPGA-side pinout,
-which is most of what a schematic would have told us — but **not** the one thing
-that matters for RGMII bring-up:
+PHY is **RTL8211E-VB-CG** (U9), 25 MHz crystal X1 with 12 pF loading caps on
+CKXTAL1/2. Schematic sheet 11 resolves the strap question that the board files
+could not.
 
-> **The RTL8211E strap-resistor states.** Whether Numato tied the TX/RX internal
-> delay straps high, low, or floating determines the PHY's power-on delay
-> configuration, and therefore the starting point for skew tuning.
+### The headline: both RGMII delay straps are unpopulated
 
-This stays an open Phase-0 item. Ways to close it, cheapest first:
+| Strap | Pin | Pull-up | Pull-down | Result |
+|---|---|---|---|---|
+| **TXDLY** | 16 (RXD1) | R133 4K7 — **DNP** | R163 4K7 — **DNP** | **unstrapped** |
+| **RXDLY** | 32 (LED2) | R140 4K7 — **DNP** | R164 4K7 — **DNP** | **unstrapped** |
 
-1. Read the straps back over MDIO at runtime once we have an MDIO master — the
-   PHY reports its latched strap configuration. This needs no document.
-2. Request the V3 schematic from Numato support, or fetch it from
-   `numato.com/docs/mimas-artix-7-fpga-development-board-with-ddr-sdram-and-gigabit-ethernet/`
-   on an unproxied network.
-3. Inspect the board directly around the PHY.
+Numato laid out both options for each delay strap and fitted neither. The RGMII
+internal delays are therefore **not board-configured** — they fall through to the
+PHY's internal default pull, which for RTL8211E strap pins is a weak pull-down,
+i.e. **both delays off**.
 
-Option 1 is likely to be fastest and is worth building the MDIO master early for
-that reason alone. Note also that Realtek does not publish the RTL8211E
-datasheet openly; `drivers/net/phy/realtek.c` in the Linux kernel is the most
-reliable public description of its extended-page delay registers.
+Two consequences, and they are the most important facts in this document:
+
+1. **Do not depend on the PHY for RGMII skew.** It is not merely disabled, it is
+   *undetermined by the board*. Any design that assumes a 2 ns internal delay
+   will fail, and will fail intermittently rather than cleanly.
+2. **The FPGA supplies the entire skew budget, both directions.** This is why
+   Numato's reference design carries a 200 MHz MMCM output — `IDELAYCTRL`. Every
+   piece of evidence now agrees.
+
+### Consequence for the TX path — no ODELAY on this part
+
+Artix-7 has only HR (High Range) I/O banks, and `ODELAYE2` exists solely in HP
+banks. **TX skew cannot be produced with an output delay primitive.** It must
+come from an MMCM phase-shifted clock: generate a 125 MHz output at 90° and
+drive the `ODDR` that produces `rgmii_tx_clk` from it. The RX path is
+unaffected — `IDELAYE2` is available in HR banks and is the right tool there.
+
+### Other straps as fitted
+
+| Function | Pin | Fitted | Value |
+|---|---|---|---|
+| SELRGV (RGMII I/O voltage) | 14 (RXD0) | R134 4K7 pull-up | 1 → 3.3 V, matches LVCMOS33 |
+| AN0 | 17 (RXD2) | R132 4K7 pull-up | 1 |
+| AN1 | 18 (RXD3) | R131 4K7 pull-up | 1 → autoneg on, 10/100/1000 |
+| PHY_AD2 | 13 (RXCTL) | R130 4K7 pull-up | 1 |
+| PHY_AD1 | 35 (LED1) | R142 4K7 pull-**down** | 0 |
+| PHY_AD0 | 34 (LED0) | R144 4K7 pull-up | 1 |
+
+That reads as **PHY address 0b101 = 5**, assuming RXCTL carries AD2. Treat as
+probable, not certain: confirm by scanning MDIO addresses 0–31 at bring-up. It
+is 32 register reads and it is definitive.
+
+### Support circuitry worth knowing
+
+- **MDIO** pin 31, **MDC** pin 30. R136 1K5 pull-up on MDIO to ETHVCC3V3.
+- **PHYRSTB** pin 29, driven from FPGA R14, with R138 4K7 pull-up and C144
+  0.1 µF to GND — an RC of roughly 470 µs. The reset sequencer must hold reset
+  for the PHY's minimum and then wait before the first MDIO transaction;
+  RTL8211E wants on the order of 10 ms post-reset. Do not race it.
+- **CLK125** pin 46 is **not connected**. We cannot source a 125 MHz TX clock
+  from the PHY — it must come from the 100 MHz oscillator via MMCM. This closes
+  off a clocking approach that other RGMII designs commonly use.
+- **ENSWREG** pin 38 tied to GND — internal switching regulator disabled, LDO
+  path in use.
+- **PMEB** pin 33 and **NC** pin 12 unconnected.
+- **C143, 27 pF from ETH_RXCLK to GND.** Verify this is actually populated. If
+  it is, 27 pF is a heavy load on a 125 MHz clock and will visibly slow the RX
+  clock edges. It is presumably an EMI measure, but it shifts the RX sampling
+  window and must be accounted for when characterising IDELAY taps — measure
+  before trusting any calculated tap value.
+- RJ45 is J5 with integrated magnetics; LEDs driven via 390R (R141, R143).
+
+## Remaining open items
+
+- Confirm `eth_rx_clk` (W19) is a clock-capable (MRCC/SRCC) input in Vivado.
+- Confirm PHY address by MDIO scan (expected 5).
+- Confirm C143 is populated on the physical board.
+- Characterise RX IDELAY tap centre empirically with an ILA eye scan; there is
+  no board-provided delay to inherit and no strap value to start from.

@@ -36,7 +36,13 @@ set_property -dict { PACKAGE_PIN V20  IOSTANDARD LVCMOS33 } [get_ports { rgmii_r
 # RX clock is recovered from the PHY and is its own domain.
 create_clock -period 8.000 -name rgmii_rx_clk [get_ports rgmii_rx_clk]
 
+# RGMII skew comes entirely from the FPGA: the PHY's TXDLY and RXDLY straps are
+# unpopulated on this board (R133/R163 and R140/R164 all DNP), so no internal
+# delay can be assumed. TX skew must come from a 90-degree MMCM clock driving
+# the TXC ODDR - Artix-7 is HR-banks-only and has no ODELAYE2. RX skew uses
+# IDELAYE2 + IDELAYCTRL at 200 MHz.
+#
 # TODO(phase-0): confirm W19 is a clock-capable (MRCC/SRCC) input.
-# TODO(phase-0): add IDELAYE2 tap constraints once RX skew is characterised.
+# TODO(phase-0): characterise RX IDELAY taps by ILA eye scan - nothing to inherit.
 # TODO(phase-1): declare the TX/RX clock domains asynchronous once the CDC
 #                FIFOs are in place (set_clock_groups -asynchronous).
