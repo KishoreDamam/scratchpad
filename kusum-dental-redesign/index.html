@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kusum's Dental Care — Unhurried, modern dentistry</title>
+<meta name="description" content="A calm, modern dental practice. Preventive care, cosmetic dentistry, implants and emergency appointments — explained clearly, priced openly.">
+<meta name="theme-color" content="#f7f2ec" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141a1a" media="(prefers-color-scheme: dark)">
+
+<link rel="icon" href="assets/img/mark.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/css/styles.css">
+
+<script type="importmap">
+{ "imports": { "three": "./assets/vendor/three.module.min.js" } }
+</script>
+<script type="module" src="assets/js/main.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ============================= NAV ============================= -->
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a class="brand" href="#top">
+      <svg class="brand__mark" viewBox="0 0 480 480" aria-hidden="true" focusable="false">
+        <path d="M240 34a206 206 0 0 1 178 103l-21 12A182 182 0 0 0 240 58Z"/>
+        <path d="M62 137A206 206 0 0 1 240 34v24A182 182 0 0 0 83 149Z"/>
+        <path d="M418 343A206 206 0 0 1 240 446v-24a182 182 0 0 0 157-91Z"/>
+        <path d="M240 446A206 206 0 0 1 62 343l21-12a182 182 0 0 0 157 91Z"/>
+        <path d="M240 96c-36 0-62 24-62 62 0 26 8 44 14 65 6 22 8 43 11 52 3 10 10 13 16 10 5-4 7-14 8-30l5-30c1-8 3-11 7-11s6 3 7 11l5 30c1 16 3 26 8 30 6 3 13 0 16-10 3-9 5-30 11-52 6-21 14-39 14-65 0-38-26-62-62-62Z"/>
+      </svg>
+      <span>
+        <span class="brand__name" data-placeholder="practice-name">Kusum's Dental Care</span>
+        <span class="brand__sub" data-placeholder="practice-tagline">Dental Surgery</span>
+      </span>
+    </a>
+
+    <nav aria-label="Primary">
+      <ul class="nav__links">
+        <li><a href="#services">Treatments</a></li>
+        <li><a href="#approach">Approach</a></li>
+        <li><a href="#team">Your dentist</a></li>
+        <li><a href="#faq">Questions</a></li>
+        <li><a href="#contact">Visit</a></li>
+      </ul>
+    </nav>
+
+    <a class="nav__phone" href="tel:+910000000000" data-placeholder="phone">+91 00000 00000</a>
+    <a class="btn btn--primary btn--small nav__cta" href="#contact">Book a visit</a>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ============================= HERO ============================= -->
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="wrap hero__grid">
+    <div class="hero__copy">
+      <span class="eyebrow" data-placeholder="hero-eyebrow">Dental surgery · Hyderabad</span>
+      <h1 class="display-1" id="hero-title" data-placeholder="hero-title">
+        Dentistry that takes<br>its time with <em>care</em>.
+      </h1>
+      <p class="lead" data-placeholder="hero-lead">
+        No rushing, no upselling, no jargon. We explain what we see, show you the
+        options and their costs, and only then pick up an instrument.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#contact">Book an appointment</a>
+        <a class="btn btn--ghost" href="#services">See treatments</a>
+      </div>
+      <p class="hero__note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11Z"/></svg>
+        <span data-placeholder="hero-note">Same-day emergency slots kept open every weekday.</span>
+      </p>
+    </div>
+
+    <div class="hero__stage" data-mode="loading">
+      <!-- img2threeJS renders here; the DOM above carries all the meaning -->
+      <canvas id="hero-canvas" data-src="assets/img/mark.svg" role="presentation" aria-hidden="true"></canvas>
+      <div class="hero__fallback" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= TRUST ============================= -->
+<section class="trust" aria-label="Practice at a glance">
+  <div class="wrap">
+    <ul class="trust__list">
+      <li class="trust__item"><span class="trust__n" data-placeholder="stat-1-n">12+</span><span class="trust__l" data-placeholder="stat-1-l">Years in practice</span></li>
+      <li class="trust__item"><span class="trust__n" data-placeholder="stat-2-n">9,000+</span><span class="trust__l" data-placeholder="stat-2-l">Appointments</span></li>
+      <li class="trust__item"><span class="trust__n" data-placeholder="stat-3-n">4.9★</span><span class="trust__l" data-placeholder="stat-3-l">Patient rating</span></li>
+      <li class="trust__item"><span class="trust__n" data-placeholder="stat-4-n">Same day</span><span class="trust__l" data-placeholder="stat-4-l">Emergency care</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================= SERVICES ============================= -->
+<section class="section" id="services" aria-labelledby="services-title">
+  <div class="wrap">
+    <div class="section__head" data-reveal>
+      <span class="eyebrow">Treatments</span>
+      <h2 class="display-2" id="services-title">Everything a mouth needs,<br>under one roof.</h2>
+      <p>Routine care and complex work in the same chair, with the same dentist — so nothing gets lost between referrals.</p>
+    </div>
+
+    <div class="cards">
+      <article class="card" data-reveal>
+        <span class="card__n">01</span>
+        <h3 data-placeholder="service-1-title">Preventive &amp; check-ups</h3>
+        <p data-placeholder="service-1-body">Examination, scaling and polishing, digital X-rays and a written plan for the next twelve months.</p>
+        <a class="card__link" href="#contact">Book a check-up</a>
+      </article>
+      <article class="card" data-reveal>
+        <span class="card__n">02</span>
+        <h3 data-placeholder="service-2-title">Fillings &amp; root canals</h3>
+        <p data-placeholder="service-2-body">Tooth-coloured composite restorations and single-visit endodontics under magnification.</p>
+        <a class="card__link" href="#contact">Discuss treatment</a>
+      </article>
+      <article class="card" data-reveal>
+        <span class="card__n">03</span>
+        <h3 data-placeholder="service-3-title">Crowns &amp; bridges</h3>
+        <p data-placeholder="service-3-body">Digitally scanned, lab-milled zirconia and e.max restorations shade-matched to your own teeth.</p>
+        <a class="card__link" href="#contact">See options</a>
+      </article>
+      <article class="card" data-reveal>
+        <span class="card__n">04</span>
+        <h3 data-placeholder="service-4-title">Implants</h3>
+        <p data-placeholder="service-4-body">Guided single and multiple implant placement, from planning scan to final crown.</p>
+        <a class="card__link" href="#contact">Ask about implants</a>
+      </article>
+      <article class="card" data-reveal>
+        <span class="card__n">05</span>
+        <h3 data-placeholder="service-5-title">Alignment &amp; aligners</h3>
+        <p data-placeholder="service-5-body">Clear aligner therapy and fixed braces, with a simulation of the result before you commit.</p>
+        <a class="card__link" href="#contact">Start an assessment</a>
+      </article>
+      <article class="card" data-reveal>
+        <span class="card__n">06</span>
+        <h3 data-placeholder="service-6-title">Whitening &amp; veneers</h3>
+        <p data-placeholder="service-6-body">Conservative cosmetic work — we take enamel off only when there is no better option.</p>
+        <a class="card__link" href="#contact">Book a consult</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= APPROACH ============================= -->
+<section class="section section--sunken" id="approach" aria-labelledby="approach-title">
+  <div class="wrap split">
+    <div data-reveal>
+      <span class="eyebrow">Approach</span>
+      <h2 class="display-2" id="approach-title">Three promises we actually keep.</h2>
+      <p style="margin-top: var(--s-5)">Most dental anxiety is really anxiety about surprise — surprise pain, surprise bills, surprise procedures. We designed the practice to remove the surprises.</p>
+    </div>
+
+    <ul class="pillars" data-reveal>
+      <li class="pillar">
+        <span class="pillar__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3 7 4-14 3 7h4"/></svg></span>
+        <div>
+          <h3 data-placeholder="pillar-1-title">You see what we see</h3>
+          <p data-placeholder="pillar-1-body">Intraoral camera and X-rays go straight to the screen in front of you. Nothing is diagnosed out of sight.</p>
+        </div>
+      </li>
+      <li class="pillar">
+        <span class="pillar__icon"><svg viewBox="0 0 24 24" aria-hidden="true" stroke-linejoin="round" stroke-linecap="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z"/><path d="M9.5 8.5h5M9.5 12.5h5"/></svg></span>
+        <div>
+          <h3 data-placeholder="pillar-2-title">Written costs, before we start</h3>
+          <p data-placeholder="pillar-2-body">Every plan comes as an itemised estimate. If something changes mid-treatment, we stop and ask first.</p>
+        </div>
+      </li>
+      <li class="pillar">
+        <span class="pillar__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.35-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.65-9 9-9 9Z"/></svg></span>
+        <div>
+          <h3 data-placeholder="pillar-3-title">Gentle is a technique, not a slogan</h3>
+          <p data-placeholder="pillar-3-body">Topical before every injection, slow-delivery anaesthetic, and a stop signal you can raise at any moment.</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================= TEAM ============================= -->
+<section class="section" id="team" aria-labelledby="team-title">
+  <div class="wrap split">
+    <figure class="portrait" data-reveal>
+      <!-- Replace with a real portrait; see README content checklist -->
+      <svg class="portrait__mark" viewBox="0 0 480 480" aria-hidden="true">
+        <path d="M240 96c-36 0-62 24-62 62 0 26 8 44 14 65 6 22 8 43 11 52 3 10 10 13 16 10 5-4 7-14 8-30l5-30c1-8 3-11 7-11s6 3 7 11l5 30c1 16 3 26 8 30 6 3 13 0 16-10 3-9 5-30 11-52 6-21 14-39 14-65 0-38-26-62-62-62Z"/>
+      </svg>
+      <figcaption>
+        <strong data-placeholder="dentist-name">Dr. Kusum</strong>
+        <span data-placeholder="dentist-credentials">BDS, MDS — Conservative Dentistry &amp; Endodontics</span>
+      </figcaption>
+    </figure>
+
+    <div data-reveal>
+      <span class="eyebrow">Your dentist</span>
+      <h2 class="display-2" id="team-title">One dentist, start to finish.</h2>
+      <p style="margin-top: var(--s-5)" data-placeholder="dentist-bio-1">
+        You are seen by the same person at every visit — the one who took your first
+        X-ray, who knows which side of your jaw is sensitive, and who will still be
+        there when the crown needs checking in five years.
+      </p>
+      <p style="margin-top: var(--s-4)" data-placeholder="dentist-bio-2">
+        Dr. Kusum trained in conservative dentistry and endodontics, and has spent
+        the last decade building a practice around a simple idea: that patients make
+        better decisions when they are given the whole picture and enough time to
+        think about it.
+      </p>
+      <div class="hero__actions" style="margin-top: var(--s-6) !important">
+        <a class="btn btn--ghost" href="#contact">Meet the practice</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= PROCESS ============================= -->
+<section class="section section--sunken" aria-labelledby="process-title">
+  <div class="wrap">
+    <div class="section__head" data-reveal>
+      <span class="eyebrow">What a first visit looks like</span>
+      <h2 class="display-2" id="process-title">Four steps. No surprises.</h2>
+    </div>
+    <ol class="steps" data-reveal>
+      <li class="step"><h3 data-placeholder="step-1-title">Listen</h3><p data-placeholder="step-1-body">Fifteen minutes on what brought you in, what you've had done before, and what you're worried about.</p></li>
+      <li class="step"><h3 data-placeholder="step-2-title">Look</h3><p data-placeholder="step-2-body">Full examination, camera, and X-rays only where they change the decision.</p></li>
+      <li class="step"><h3 data-placeholder="step-3-title">Explain</h3><p data-placeholder="step-3-body">Findings on screen, options side by side, itemised costs, and the do-nothing option included honestly.</p></li>
+      <li class="step"><h3 data-placeholder="step-4-title">Treat</h3><p data-placeholder="step-4-body">Only once you've agreed — and you can take the plan home to think about it first.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================= TESTIMONIALS ============================= -->
+<section class="section" aria-labelledby="quotes-title">
+  <div class="wrap">
+    <div class="section__head" data-reveal>
+      <span class="eyebrow">Patients</span>
+      <h2 class="display-2" id="quotes-title">In their words.</h2>
+    </div>
+    <div class="quotes">
+      <figure class="quote" data-reveal>
+        <div class="quote__stars" aria-label="5 out of 5">★★★★★</div>
+        <blockquote data-placeholder="quote-1">“I had put off the dentist for six years. She walked me through every single thing before touching anything. I've been back twice since without dreading it.”</blockquote>
+        <figcaption data-placeholder="quote-1-by">Anitha R. — root canal &amp; crown</figcaption>
+      </figure>
+      <figure class="quote" data-reveal>
+        <div class="quote__stars" aria-label="5 out of 5">★★★★★</div>
+        <blockquote data-placeholder="quote-2">“The estimate I was given at the start was the amount I paid at the end. That alone made me switch practices.”</blockquote>
+        <figcaption data-placeholder="quote-2-by">Vikram S. — implant</figcaption>
+      </figure>
+      <figure class="quote" data-reveal>
+        <div class="quote__stars" aria-label="5 out of 5">★★★★★</div>
+        <blockquote data-placeholder="quote-3">“Chipped a front tooth on a Saturday morning and was seen the same afternoon. You can't tell which one it was.”</blockquote>
+        <figcaption data-placeholder="quote-3-by">Meera K. — emergency repair</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= FAQ ============================= -->
+<section class="section section--sunken" id="faq" aria-labelledby="faq-title">
+  <div class="wrap">
+    <div class="section__head" data-reveal>
+      <span class="eyebrow">Questions</span>
+      <h2 class="display-2" id="faq-title">Things people ask before booking.</h2>
+    </div>
+    <div class="faq" data-reveal>
+      <details>
+        <summary data-placeholder="faq-1-q">Will it hurt?</summary>
+        <p data-placeholder="faq-1-a">For most routine work, no. We use topical gel before any injection and deliver anaesthetic slowly, which is what makes the difference. You can raise a hand to stop at any point, and we will.</p>
+      </details>
+      <details>
+        <summary data-placeholder="faq-2-q">How much does a check-up cost?</summary>
+        <p data-placeholder="faq-2-a">A full examination including X-rays where needed is a fixed fee, quoted when you book. Any treatment that follows is itemised in writing before it starts.</p>
+      </details>
+      <details>
+        <summary data-placeholder="faq-3-q">Do you see emergencies?</summary>
+        <p data-placeholder="faq-3-a">Yes. We hold slots open every weekday for pain, swelling, a lost filling or a broken front tooth. Call the practice directly rather than using the form.</p>
+      </details>
+      <details>
+        <summary data-placeholder="faq-4-q">Do you treat nervous patients?</summary>
+        <p data-placeholder="faq-4-a">Often. Tell us when you book and we will schedule a longer, treatment-free first appointment — just conversation and an examination, nothing else.</p>
+      </details>
+      <details>
+        <summary data-placeholder="faq-5-q">What about children?</summary>
+        <p data-placeholder="faq-5-a">We see children from their first tooth onwards. Early visits are short, familiar and deliberately uneventful, which is the point.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= CONTACT ============================= -->
+<section class="section" id="contact" aria-labelledby="contact-title">
+  <div class="wrap contact__grid">
+    <div data-reveal>
+      <span class="eyebrow">Visit</span>
+      <h2 class="display-2" id="contact-title">Come and see us.</h2>
+
+      <dl class="info-list">
+        <div>
+          <dt>Address</dt>
+          <dd data-placeholder="address">Street address line 1,<br>Locality, Hyderabad, Telangana 500000</dd>
+        </div>
+        <div>
+          <dt>Phone</dt>
+          <dd><a href="tel:+910000000000" data-placeholder="phone">+91 00000 00000</a></dd>
+        </div>
+        <div>
+          <dt>Email</dt>
+          <dd><a href="mailto:hello@example.com" data-placeholder="email">hello@example.com</a></dd>
+        </div>
+      </dl>
+
+      <table class="hours">
+        <caption>Opening hours</caption>
+        <tbody>
+          <tr data-day="1"><th scope="row">Monday</th><td data-placeholder="hours-mon">9:30 – 19:00</td></tr>
+          <tr data-day="2"><th scope="row">Tuesday</th><td data-placeholder="hours-tue">9:30 – 19:00</td></tr>
+          <tr data-day="3"><th scope="row">Wednesday</th><td data-placeholder="hours-wed">9:30 – 19:00</td></tr>
+          <tr data-day="4"><th scope="row">Thursday</th><td data-placeholder="hours-thu">9:30 – 19:00</td></tr>
+          <tr data-day="5"><th scope="row">Friday</th><td data-placeholder="hours-fri">9:30 – 19:00</td></tr>
+          <tr data-day="6"><th scope="row">Saturday</th><td data-placeholder="hours-sat">10:00 – 15:00</td></tr>
+          <tr data-day="0"><th scope="row">Sunday</th><td data-placeholder="hours-sun">Closed</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="booking" data-reveal>
+      <h3 style="font-size:1.25rem">Request an appointment</h3>
+      <p style="font-size:.9375rem; margin:var(--s-3) 0 var(--s-6)">We reply the same working day. For pain or swelling, please call instead.</p>
+
+      <form id="booking-form" novalidate>
+        <div class="field">
+          <label for="f-name">Your name</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="f-phone">Phone</label>
+          <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required>
+          <span class="field__hint">We'll call to confirm the slot.</span>
+        </div>
+        <div class="field">
+          <label for="f-reason">What's it about?</label>
+          <select id="f-reason" name="reason">
+            <option>Routine check-up</option>
+            <option>Pain or sensitivity</option>
+            <option>Cosmetic consultation</option>
+            <option>Implants</option>
+            <option>Aligners or braces</option>
+            <option>Something else</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-note">Anything we should know? <span style="font-weight:400;color:var(--ink-300)">(optional)</span></label>
+          <textarea id="f-note" name="note" rows="3"></textarea>
+        </div>
+        <button class="btn btn--primary" type="submit">Request appointment</button>
+        <p class="booking__foot" role="status">Your details are used only to arrange this appointment.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================= FOOTER ============================= -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__grid">
+      <div>
+        <a class="brand" href="#top" style="color:var(--shell-000)">
+          <svg class="brand__mark" viewBox="0 0 480 480" aria-hidden="true">
+            <path d="M240 96c-36 0-62 24-62 62 0 26 8 44 14 65 6 22 8 43 11 52 3 10 10 13 16 10 5-4 7-14 8-30l5-30c1-8 3-11 7-11s6 3 7 11l5 30c1 16 3 26 8 30 6 3 13 0 16-10 3-9 5-30 11-52 6-21 14-39 14-65 0-38-26-62-62-62Z"/>
+          </svg>
+          <span class="brand__name" data-placeholder="practice-name">Kusum's Dental Care</span>
+        </a>
+        <p style="margin-top:var(--s-4); max-width:28ch">Unhurried, modern dentistry — explained clearly, priced openly.</p>
+      </div>
+      <div>
+        <h4>Treatments</h4>
+        <ul>
+          <li><a href="#services">Check-ups</a></li>
+          <li><a href="#services">Fillings &amp; root canals</a></li>
+          <li><a href="#services">Crowns &amp; implants</a></li>
+          <li><a href="#services">Aligners</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Practice</h4>
+        <ul>
+          <li><a href="#approach">Our approach</a></li>
+          <li><a href="#team">Your dentist</a></li>
+          <li><a href="#faq">Questions</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Get in touch</h4>
+        <ul>
+          <li><a href="tel:+910000000000" data-placeholder="phone">+91 00000 00000</a></li>
+          <li><a href="mailto:hello@example.com" data-placeholder="email">hello@example.com</a></li>
+          <li data-placeholder="address-short">Locality, Hyderabad</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© <span id="year">2026</span> <span data-placeholder="practice-name">Kusum's Dental Care</span>. All rights reserved.</span>
+      <span>Registered dental practice · <span data-placeholder="registration">Reg. no. 000000</span></span>
+    </div>
+  </div>
+</footer>
+
+<!-- mobile action bar -->
+<div class="bookbar">
+  <a class="btn btn--ghost" href="tel:+910000000000">Call</a>
+  <a class="btn btn--primary" href="#contact">Book</a>
+</div>
+
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>
