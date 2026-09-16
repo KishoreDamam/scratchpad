@@ -3,52 +3,67 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rubik's Cube</title>
+<title>Rubik's Cube Solver</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header class="topbar">
-  <h1>Rubik's Cube</h1>
-  <div class="stats">
-    <span class="stat"><label>Time</label><output id="timer">0.0s</output></span>
-    <span class="stat"><label>Moves</label><output id="moves">0</output></span>
-    <span class="stat"><label>Status</label><output id="status">Solved</output></span>
-  </div>
+  <h1>Rubik's Cube Solver</h1>
+  <p class="tagline">Enter the cube you're holding, get the turns that solve it.</p>
 </header>
 
 <main>
-  <div id="stage" class="stage" title="Drag to rotate the view">
-    <div id="cube" class="cube"></div>
-  </div>
+  <section class="viewer">
+    <div id="viewport" class="viewport" title="Drag to rotate the view">
+      <div id="cube" class="cube"></div>
+    </div>
+
+    <div id="playback" class="playback" hidden>
+      <div class="transport">
+        <button id="toStart" title="Back to the scrambled cube">&#124;&#9664;</button>
+        <button id="stepBack" title="Previous move">&#9664;</button>
+        <button id="play" class="primary" title="Play the solution">&#9654; Play</button>
+        <button id="stepForward" title="Next move">&#9654;</button>
+        <button id="toEnd" title="Jump to the solved cube">&#9654;&#124;</button>
+      </div>
+      <div class="progress">
+        <output id="position">0 / 0</output>
+        <div class="track"><div id="bar" class="bar"></div></div>
+        <output id="nowPlaying" class="now">&mdash;</output>
+      </div>
+    </div>
+  </section>
 
   <section class="panel">
     <div class="group">
-      <h2>Face turns</h2>
-      <div id="faceButtons" class="buttons"></div>
-      <p class="hint">Keys: <kbd>U</kbd> <kbd>D</kbd> <kbd>L</kbd> <kbd>R</kbd> <kbd>F</kbd> <kbd>B</kbd> &mdash; hold <kbd>Shift</kbd> for counter-clockwise.</p>
-    </div>
-
-    <div class="group">
-      <h2>Controls</h2>
+      <h2>Your cube</h2>
+      <p class="hint">Click a sticker to paint it. Centres set which colour is which face, so paint them the way you're holding the cube.</p>
+      <div id="palette" class="palette"></div>
+      <div id="net" class="net"></div>
+      <p id="validity" class="validity">&mdash;</p>
       <div class="buttons">
-        <button id="scramble" class="wide">Scramble</button>
-        <button id="reset" class="wide">Reset</button>
-        <button id="undo" class="wide">Undo</button>
+        <button id="scramble">Random scramble</button>
+        <button id="resetCube">Solved cube</button>
       </div>
-      <label class="slider">
-        Speed
-        <input id="speed" type="range" min="60" max="600" step="20" value="220">
-      </label>
+      <label class="field" for="notation">Or type a scramble</label>
+      <div class="row">
+        <input id="notation" type="text" placeholder="R U R' U' F2 L" spellcheck="false" autocomplete="off">
+        <button id="applyNotation">Apply</button>
+      </div>
     </div>
 
     <div class="group">
-      <h2>History</h2>
-      <p id="history" class="history">&mdash;</p>
+      <h2>Solution</h2>
+      <button id="solve" class="solve">Solve this cube</button>
+      <p id="summary" class="summary">Paint your cube, then solve it.</p>
+      <ol id="stages" class="stages"></ol>
     </div>
   </section>
 </main>
 
 <script src="cube.js"></script>
+<script src="solver.js"></script>
+<script src="facelets.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -11,11 +11,11 @@
  */
 
 const FACES = {
-  U: { axis: [0, -1, 0], color: '#f7f7f5' },
-  D: { axis: [0, 1, 0], color: '#ffd500' },
-  F: { axis: [0, 0, 1], color: '#00a04b' },
-  B: { axis: [0, 0, -1], color: '#0051ba' },
-  R: { axis: [1, 0, 0], color: '#d2281f' },
+  U: { axis: [0, -1, 0], color: '#f7f7f5', name: 'white' },
+  D: { axis: [0, 1, 0], color: '#ffd500', name: 'yellow' },
+  F: { axis: [0, 0, 1], color: '#00a04b', name: 'green' },
+  B: { axis: [0, 0, -1], color: '#0051ba', name: 'blue' },
+  R: { axis: [1, 0, 0], color: '#d2281f', name: 'red' },
   L: { axis: [-1, 0, 0], color: '#ff6a00' }
 };
 
@@ -111,13 +111,18 @@ class Cube {
     }
   }
 
+  // Solved means every sticker faces its own colour's side. Comparing whole
+  // orientation matrices would be stricter than the cube itself: a centre can
+  // be left spun in place by a legal sequence, which changes its matrix but
+  // nothing you can see.
   isSolved() {
-    return this.cubies.every((c) => {
-      const home = c.home.every((v, i) => v === c.position[i]);
-      const upright = c.orientation.every((row, i) =>
-        row.every((v, j) => v === IDENTITY[i][j])
-      );
-      return home && upright;
+    return this.cubies.every((cubie) => {
+      if (!cubie.home.every((v, i) => v === cubie.position[i])) return false;
+      return cubie.stickers.every((face) => {
+        const axis = FACES[face].axis;
+        const facing = apply(cubie.orientation, axis);
+        return facing.every((v, i) => v === axis[i]);
+      });
     });
   }
 }
