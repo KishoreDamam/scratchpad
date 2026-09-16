@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rubik's Cube</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>Rubik's Cube</h1>
+  <div class="stats">
+    <span class="stat"><label>Time</label><output id="timer">0.0s</output></span>
+    <span class="stat"><label>Moves</label><output id="moves">0</output></span>
+    <span class="stat"><label>Status</label><output id="status">Solved</output></span>
+  </div>
+</header>
+
+<main>
+  <div id="stage" class="stage" title="Drag to rotate the view">
+    <div id="cube" class="cube"></div>
+  </div>
+
+  <section class="panel">
+    <div class="group">
+      <h2>Face turns</h2>
+      <div id="faceButtons" class="buttons"></div>
+      <p class="hint">Keys: <kbd>U</kbd> <kbd>D</kbd> <kbd>L</kbd> <kbd>R</kbd> <kbd>F</kbd> <kbd>B</kbd> &mdash; hold <kbd>Shift</kbd> for counter-clockwise.</p>
+    </div>
+
+    <div class="group">
+      <h2>Controls</h2>
+      <div class="buttons">
+        <button id="scramble" class="wide">Scramble</button>
+        <button id="reset" class="wide">Reset</button>
+        <button id="undo" class="wide">Undo</button>
+      </div>
+      <label class="slider">
+        Speed
+        <input id="speed" type="range" min="60" max="600" step="20" value="220">
+      </label>
+    </div>
+
+    <div class="group">
+      <h2>History</h2>
+      <p id="history" class="history">&mdash;</p>
+    </div>
+  </section>
+</main>
+
+<script src="cube.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
