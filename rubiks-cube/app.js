@@ -466,10 +466,372 @@ window.addEventListener('mouseup', endDrag);
 viewportEl.addEventListener('touchmove', moveDrag, { passive: false });
 viewportEl.addEventListener('touchend', endDrag);
 
+/* ---------- learning ---------- */
+
+const learnEls = {
+  panel: document.getElementById('learnPanel'),
+  course: document.getElementById('course'),
+  courseProgress: document.getElementById('courseProgress'),
+  notationList: document.getElementById('notationList'),
+  clockwiseNote: document.getElementById('clockwiseNote'),
+  lesson: document.getElementById('lessonGroup'),
+  stage: document.getElementById('lessonStage'),
+  name: document.getElementById('lessonName'),
+  goal: document.getElementById('lessonGoal'),
+  idea: document.getElementById('lessonIdea'),
+  look: document.getElementById('lessonLook'),
+  algs: document.getElementById('lessonAlgs'),
+  why: document.getElementById('lessonWhy'),
+  check: document.getElementById('lessonCheck'),
+  practice: document.getElementById('practiceGroup'),
+  practiceStage: document.getElementById('practiceStage'),
+  practiceGoal: document.getElementById('practiceGoal'),
+  practiceCount: document.getElementById('practiceCount'),
+  practiceBar: document.getElementById('practiceBar'),
+  feedback: document.getElementById('practiceFeedback'),
+  hintText: document.getElementById('hintText')
+};
+
+const turnpadEl = document.getElementById('turnpad');
+let mode = 'solve';
+let lessonIndex = 0;
+let practicePhase = null;   // the phase being drilled, or null
+let turnHistory = [];
+
+// Which stages the learner has finished at least once. Per-viewer only, and
+// the app works the same if the browser refuses to store it.
+const LEARNED_KEY = 'rubiks-learned';
+
+function loadLearned() {
+  try {
+    const raw = localStorage.getItem(LEARNED_KEY);
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch (err) {
+    return new Set();
+  }
+}
+
+function saveLearned() {
+  try {
+    localStorage.setItem(LEARNED_KEY, JSON.stringify([...learned]));
+  } catch (err) {
+    /* a private window or blocked storage: progress just won't persist */
+  }
+}
+
+let learned = loadLearned();
+
+/* ---------- tabs ---------- */
+
+function setMode(next) {
+  mode = next;
+  const learning = next === 'learn';
+  document.getElementById('solvePanel').hidden = learning;
+  learnEls.panel.hidden = !learning;
+  document.getElementById('tabSolve').classList.toggle('active', !learning);
+  document.getElementById('tabLearn').classList.toggle('active', learning);
+  document.getElementById('tabSolve').setAttribute('aria-selected', String(!learning));
+  document.getElementById('tabLearn').setAttribute('aria-selected', String(learning));
+  turnpadEl.hidden = !learning;
+  playbackEl.hidden = learning || !solution;
+  if (learning) showLesson(lessonIndex);
+}
+
+document.getElementById('tabSolve').addEventListener('click', () => setMode('solve'));
+document.getElementById('tabLearn').addEventListener('click', () => setMode('learn'));
+
+/* ---------- course list ---------- */
+
+function buildNotation() {
+  for (const { move, text } of NOTATION) {
+    const row = document.createElement('div');
+    row.className = 'notation-row';
+    row.innerHTML = `<span class="move static">${move}</span><span>${text}</span>`;
+    learnEls.notationList.appendChild(row);
+  }
+  learnEls.clockwiseNote.textContent = CLOCKWISE_NOTE;
+}
+
+function renderCourse() {
+  learnEls.course.textContent = '';
+  COURSE.forEach((lesson, index) => {
+    const item = document.createElement('li');
+    item.className = 'course-step';
+    item.classList.toggle('current', index === lessonIndex);
+    item.classList.toggle('learned', learned.has(lesson.key));
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'course-button';
+    button.innerHTML =
+      `<span class="course-index">${index + 1}</span>` +
+      `<span class="course-text"><span class="course-name">${lesson.name}</span>` +
+      `<span class="course-detail">${lesson.detail}</span></span>` +
+      `<span class="course-mark">${learned.has(lesson.key) ? '&#10003;' : ''}</span>`;
+    button.addEventListener('click', () => showLesson(index));
+    item.appendChild(button);
+    learnEls.course.appendChild(item);
+  });
+
+  const done = COURSE.filter((l) => learned.has(l.key)).length;
+  learnEls.courseProgress.textContent =
+    done === COURSE.length
+      ? 'All seven stages practised. You can solve a cube unaided.'
+      : `${done} of ${COURSE.length} stages practised.`;
+  learnEls.courseProgress.className = done === COURSE.length ? 'summary ok' : 'summary';
+}
+
+function algorithmBlock(alg) {
+  const box = document.createElement('div');
+  box.className = 'alg';
+
+  const head = document.createElement('div');
+  head.className = 'alg-head';
+  head.innerHTML = `<span class="alg-name">${alg.name}</span>`;
+
+  const watch = document.createElement('button');
+  watch.type = 'button';
+  watch.className = 'small';
+  watch.textContent = 'Watch it';
+  watch.addEventListener('click', () => playSequence(alg.moves));
+  head.appendChild(watch);
+  box.appendChild(head);
+
+  const moves = document.createElement('div');
+  moves.className = 'moves';
+  for (const move of alg.moves) {
+    const chip = document.createElement('span');
+    chip.className = 'move static';
+    chip.textContent = move;
+    moves.appendChild(chip);
+  }
+  box.appendChild(moves);
+
+  const note = document.createElement('p');
+  note.className = 'alg-note';
+  note.textContent = alg.note;
+  box.appendChild(note);
+  return box;
+}
+
+function showLesson(index) {
+  lessonIndex = index;
+  const lesson = COURSE[index];
+  learnEls.lesson.hidden = false;
+  learnEls.stage.textContent = `Stage ${index + 1} of ${COURSE.length}`;
+  learnEls.name.textContent = lesson.name;
+  learnEls.goal.textContent = lesson.goal;
+  learnEls.idea.textContent = lesson.idea;
+
+  learnEls.look.textContent = '';
+  for (const step of lesson.look) {
+    const li = document.createElement('li');
+    li.textContent = step;
+    learnEls.look.appendChild(li);
+  }
+
+  learnEls.algs.textContent = '';
+  if (lesson.algorithms.length) {
+    const head = document.createElement('h4');
+    head.className = 'lesson-head';
+    head.textContent = lesson.algorithms.length > 1 ? 'The algorithms' : 'The algorithm';
+    learnEls.algs.appendChild(head);
+    for (const alg of lesson.algorithms) learnEls.algs.appendChild(algorithmBlock(alg));
+  }
+
+  learnEls.why.textContent = lesson.why;
+  learnEls.check.textContent = `Done when: ${lesson.check}`;
+  renderCourse();
+}
+
+/* ---------- practice ---------- */
+
+const phaseFor = (key) => PHASES.find((p) => p.key === key);
+
+// Builds a cube that is finished up to the chosen stage and scrambled from
+// there on, by solving a random cube and stopping at the right moment.
+function setUpPractice(key) {
+  const target = PHASES.findIndex((p) => p.key === key);
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const start = new Cube();
+    for (const move of randomScramble(25)) {
+      const { face, quarters } = parseMove(move);
+      start.turn(face, quarters);
+    }
+    const { stages } = solveCube(start);
+    for (let i = 0; i < target; i++) {
+      for (const move of stages[i].moves) {
+        const { face, quarters } = parseMove(move);
+        start.turn(face, quarters);
+      }
+    }
+    // Reject the occasional cube that arrives with this stage already done.
+    if (!phaseDone(stateFromCube(start), PHASES[target])) return start;
+  }
+  return null;
+}
+
+function startPractice(key) {
+  const next = setUpPractice(key);
+  if (!next) return;
+  practicePhase = phaseFor(key);
+  turnHistory = [];
+  cube = next;
+  colours = faceletsFromCube(cube);
+  paint = Object.fromEntries(FACE_ORDER.map((f) => [f, f]));
+  renderNet();
+  buildCube();
+  discardSolution();
+  learnEls.practice.hidden = false;
+  learnEls.practiceStage.textContent = practicePhase.name;
+  learnEls.practiceGoal.textContent = LESSONS[key].goal;
+  learnEls.hintText.hidden = true;
+  updatePractice('Your move.');
+  learnEls.practice.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+document.getElementById('startPractice').addEventListener('click', () => {
+  startPractice(COURSE[lessonIndex].key);
+});
+document.getElementById('newPractice').addEventListener('click', () => {
+  if (practicePhase) startPractice(practicePhase.key);
+});
+
+function updatePractice(message, tone = '') {
+  if (!practicePhase) return;
+  const state = stateFromCube(cube);
+  const placed = practicePhase.progress(state);
+  const total = phaseTotal(practicePhase);
+  learnEls.practiceCount.textContent = `${placed} / ${total}`;
+  learnEls.practiceBar.style.width = `${(placed / total) * 100}%`;
+
+  // Anything earlier that the learner has knocked out is worth saying, since
+  // spotting it yourself is most of the skill.
+  const broken = PHASES
+    .slice(0, PHASES.indexOf(practicePhase))
+    .filter((p) => !phaseDone(state, p));
+
+  if (phaseDone(state, practicePhase)) {
+    if (broken.length) {
+      learnEls.feedback.textContent =
+        `That finishes the stage, but ${broken[0].name.toLowerCase()} came apart on the way. Undo and try to keep it intact.`;
+      learnEls.feedback.className = 'summary bad';
+      return;
+    }
+    if (!learned.has(practicePhase.key)) {
+      learned.add(practicePhase.key);
+      saveLearned();
+      renderCourse();
+    }
+    const next = PHASES[PHASES.indexOf(practicePhase) + 1];
+    learnEls.feedback.textContent = next
+      ? `Stage complete. Next up: ${next.name}.`
+      : 'Stage complete — the cube is solved. That is the whole method.';
+    learnEls.feedback.className = 'summary ok';
+    return;
+  }
+
+  if (broken.length) {
+    learnEls.feedback.textContent = `Careful — ${broken[0].name.toLowerCase()} came apart. Undo, or start a new cube.`;
+    learnEls.feedback.className = 'summary bad';
+    return;
+  }
+
+  learnEls.feedback.textContent = message;
+  learnEls.feedback.className = 'summary' + (tone ? ' ' + tone : '');
+}
+
+document.getElementById('hint').addEventListener('click', () => {
+  if (!practicePhase || busy) return;
+  const moves = phaseHint(stateFromCube(cube), practicePhase);
+  learnEls.hintText.hidden = false;
+  learnEls.hintText.innerHTML = moves.length
+    ? `Next move: <span class="move static">${moves[0]}</span>` +
+      (moves.length > 1 ? `<span class="muted"> &middot; ${moves.length} to finish this piece</span>` : '')
+    : 'Nothing left to do here.';
+});
+
+document.getElementById('showStep').addEventListener('click', async () => {
+  if (!practicePhase || busy) return;
+  const moves = phaseHint(stateFromCube(cube), practicePhase);
+  if (!moves.length) return;
+  learnEls.hintText.hidden = false;
+  learnEls.hintText.innerHTML =
+    'The step: ' + moves.map((m) => `<span class="move static">${m}</span>`).join(' ');
+  await playSequence(moves);
+});
+
+/* ---------- turning by hand ---------- */
+
+async function playSequence(moves) {
+  if (busy) return;
+  for (const move of moves) {
+    const { face, quarters } = parseMove(move);
+    await manualTurn(face, quarters);
+  }
+}
+
+async function manualTurn(face, quarters) {
+  if (busy) return;
+  busy = true;
+  await animateTurn(face, quarters);
+  turnHistory.push({ face, quarters });
+  colours = faceletsFromCube(cube);
+  renderNet();
+  busy = false;
+  updatePractice('Your move.');
+}
+
+function buildTurnPad() {
+  const container = document.getElementById('turnButtons');
+  for (const face of FACE_ORDER) {
+    for (const quarters of [1, -1]) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'move';
+      button.textContent = formatMove(face, quarters);
+      button.addEventListener('click', () => manualTurn(face, quarters));
+      container.appendChild(button);
+    }
+  }
+}
+
+// The first stage is built on the bottom face, which the default angle hides.
+document.getElementById('flipView').addEventListener('click', (event) => {
+  view.x = view.x < 0 ? 32 : -26;
+  event.target.textContent = view.x < 0 ? 'Flip to bottom' : 'Flip to top';
+  cubeEl.classList.add('flipping');
+  updateView();
+  setTimeout(() => cubeEl.classList.remove('flipping'), 500);
+});
+
+document.getElementById('undoTurn').addEventListener('click', async () => {
+  if (busy || !turnHistory.length) return;
+  const last = turnHistory.pop();
+  busy = true;
+  await animateTurn(last.face, last.quarters === 2 ? 2 : -last.quarters);
+  colours = faceletsFromCube(cube);
+  renderNet();
+  busy = false;
+  updatePractice('Undone.');
+});
+
+document.addEventListener('keydown', (event) => {
+  if (mode !== 'learn' || busy) return;
+  if (event.metaKey || event.ctrlKey || event.altKey) return;
+  if (event.target.tagName === 'INPUT') return;
+  const face = event.key.toUpperCase();
+  if (!FACES[face]) return;
+  event.preventDefault();
+  manualTurn(face, event.shiftKey ? -1 : 1);
+});
+
 /* ---------- boot ---------- */
 
 buildPalette();
 buildNet();
+buildNotation();
+buildTurnPad();
 buildCube();
 
 // Open on a scrambled cube rather than an empty shell, so the solver has
@@ -481,4 +843,5 @@ buildCube();
     next.turn(face, quarters);
   }
   adoptCube(next);
+  renderCourse();
 })();

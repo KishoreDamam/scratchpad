@@ -261,5 +261,161 @@ input[type="text"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bar { transition: none; }
+  .bar, .cube.flipping { transition: none; }
 }
+
+/* ---------- tabs ---------- */
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.tab {
+  flex: 1;
+  background: transparent;
+  border-color: transparent;
+  font-weight: 600;
+  color: var(--muted);
+}
+.tab:hover:not(.active) { background: #22222b; border-color: transparent; }
+.tab.active { background: #262632; border-color: var(--line); color: var(--text); }
+
+.tabpanel { display: flex; flex-direction: column; gap: 18px; }
+
+/* ---------- turning by hand ---------- */
+
+.turnpad {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 14px 16px;
+}
+
+.turnpad-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.turnpad-tools { display: flex; gap: 6px; }
+.cube.flipping { transition: transform .45s ease; }
+
+.turn-buttons { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.turn-buttons .move { padding: 9px 0; text-align: center; }
+
+button.small {
+  padding: 4px 10px;
+  font-size: 12px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.hint.compact { margin: 10px 0 0; }
+
+/* ---------- the course ---------- */
+
+.course { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+
+.course-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: var(--sunken);
+  padding: 8px 10px;
+}
+
+.course-index {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #2a2a35;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.course-text { display: flex; flex-direction: column; min-width: 0; }
+.course-name { font-size: 13px; font-weight: 600; }
+.course-detail { font-size: 11px; color: var(--muted); }
+.course-mark { margin-left: auto; color: var(--good); }
+
+.course-step.current .course-button { border-color: var(--accent); }
+.course-step.current .course-index { background: var(--accent); color: #0b1020; }
+.course-step.learned .course-index { background: #1f3d2c; color: var(--good); }
+
+/* ---------- notation ---------- */
+
+.notation { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; }
+.notation-row { display: contents; }
+.notation-row span:last-child { font-size: 12px; color: var(--muted); }
+
+.move.static { cursor: default; display: inline-block; }
+
+/* ---------- a lesson ---------- */
+
+.lesson-name { margin: 0 0 6px; font-size: 16px; }
+.lesson-goal { margin: 0 0 10px; font-size: 13px; color: var(--text); }
+.lesson-idea { margin: 0 0 4px; font-size: 13px; color: var(--muted); }
+
+.lesson-head {
+  margin: 16px 0 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+}
+
+.lesson-look { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.lesson-look li { font-size: 13px; }
+.lesson-why { margin: 0; font-size: 13px; color: var(--muted); }
+
+.lesson-check {
+  margin: 16px 0 0;
+  padding: 9px 11px;
+  border-left: 2px solid var(--good);
+  background: #14201a;
+  border-radius: 0 8px 8px 0;
+  font-size: 12px;
+}
+
+#lessonGroup .solve { margin-top: 16px; }
+
+.alg {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--sunken);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.alg-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.alg-name { font-size: 13px; font-weight: 600; }
+.alg-note { margin: 8px 0 0; font-size: 12px; color: var(--muted); }
+
+/* ---------- practice ---------- */
+
+.buttons.three { grid-template-columns: repeat(3, 1fr); }
+
+.hint-text {
+  margin: 12px 0 0;
+  font-size: 13px;
+  padding: 9px 11px;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.hint-text .muted { color: var(--muted); }

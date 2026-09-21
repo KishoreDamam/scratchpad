@@ -1,9 +1,13 @@
 # Rubik's Cube Solver
 
-Enter the cube you are holding and get the turns that solve it. No build step
-and no dependencies — open `index.html`.
+Enter the cube you are holding and get the turns that solve it — and learn the
+method well enough to do it without the app. No build step and no
+dependencies: open `index.html`.
 
-## Using it
+Two tabs: **Solve** answers this cube, **Learn** teaches you to answer the next
+one.
+
+## Solve
 
 1. **Describe your cube.** Click a colour, then click stickers on the flat net.
    The centres are what say which colour is which face, so paint them the way
@@ -17,6 +21,27 @@ and no dependencies — open `index.html`.
 
 Moves use standard notation: `U D L R F B` for a clockwise quarter turn of a
 face, `'` for counter-clockwise, `2` for a half turn.
+
+## Learn
+
+The same seven stages, taught one at a time. Each lesson gives the goal, what
+to look for on the cube, the algorithm (with a **Watch it** button that runs it
+in front of you), why it works, and how to tell when the stage is done.
+
+Then **practise it**. The app builds a cube finished up to that stage and
+scrambled from there, hands you the controls, and gets out of the way:
+
+- Turn the cube with the buttons or the keyboard, and undo a wrong turn.
+- **Hint** names the next move; **Show step** plays the whole placement.
+- A meter counts the pieces placed, and full always means finished.
+- Break an earlier stage and it says so — noticing that yourself is most of
+  the skill.
+- Stages you complete are ticked off and remembered between visits.
+
+Every algorithm a lesson teaches is one the solver itself searches with,
+referenced rather than retyped, so the lessons cannot drift from the code. The
+counts quoted ("at most three applications") are measured against the solver
+over thousands of random cubes.
 
 ## What it rejects
 
@@ -77,5 +102,10 @@ The model and solver are covered by assertions run under Node:
 - **5000 random scrambles, all solved** — averaging 114 moves, worst case 18ms.
 - the net round-trips through a state and back, and each impossible cube is
   rejected with the right reason.
+- every lesson matches the solver: the algorithms it teaches are generators
+  the solver actually uses, and the cross stage teaches none.
+- phases complete in order and stay complete; progress counters read full
+  exactly when a stage is done; and from a practice setup at any stage,
+  following hints finishes it without breaking an earlier one.
 
 Run them with `./test/run.sh` (optionally passing a scramble count, default 1000).

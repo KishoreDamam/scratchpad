@@ -186,12 +186,17 @@ function withInverses(sequences) {
 }
 
 // Inserting a first-layer corner from the U layer: the four slot triggers.
+// TRIGGER is the front-right one, the version the lessons teach.
+const TRIGGER = seq("R U R' U'");
 const CORNER_TRIGGERS = withInverses(
   ['R U R\' U\'', 'B U B\' U\'', 'L U L\' U\'', 'F U F\' U\''].map(seq)
 );
 
 // Middle-layer edge inserts. For a slot between side faces A and B, the edge
-// drops in from above either to the right of A or to the left of B.
+// drops in from above either to the right of A or to the left of B. The two
+// front-slot versions are the ones the lessons teach.
+const RIGHT_INSERT = seq("U R U' R' U' F' U F");
+const LEFT_INSERT = seq("U' L' U L U F U' F'");
 const EDGE_INSERTS = withInverses(
   [
     ['F', 'R'], ['R', 'B'], ['B', 'L'], ['L', 'F']
@@ -242,100 +247,142 @@ const edgesHome = (state, slots) =>
 const cornersHome = (state, slots) =>
   slots.every((s) => state[CP + s] === s && state[CO + s] === 0);
 
-/* ---------- the solve ---------- */
+/* ---------- the phases ---------- */
+
+// One definition of the method, shared by the solver, the hints and the
+// lessons, so none of them can describe a different cube from the others.
+const PHASES = [
+  {
+    key: 'cross',
+    name: 'Bottom cross',
+    detail: 'Four edges around the D centre',
+    generators: single(ALL_MOVES),
+    pieces: CROSS_EDGES,
+    incremental: true,
+    keyFor: (tracked) => (s) => edgeKey(s, tracked),
+    goalFor: (tracked) => (s) => edgesHome(s, tracked),
+    progress: (s) => CROSS_EDGES.filter((slot) => edgesHome(s, [slot])).length
+  },
+  {
+    key: 'corners',
+    name: 'Bottom corners',
+    detail: 'First layer complete',
+    generators: U_TURNS.concat(CORNER_TRIGGERS),
+    pieces: FIRST_CORNERS,
+    incremental: true,
+    keyFor: (tracked) => (s) => cornerKey(s, tracked),
+    goalFor: (tracked) => (s) => cornersHome(s, tracked),
+    progress: (s) => FIRST_CORNERS.filter((slot) => cornersHome(s, [slot])).length
+  },
+  {
+    key: 'middle',
+    name: 'Middle layer',
+    detail: 'Four edges between the centres',
+    generators: U_TURNS.concat(EDGE_INSERTS),
+    pieces: MIDDLE_EDGES,
+    incremental: true,
+    keyFor: (tracked) => (s) => edgeKey(s, tracked),
+    goalFor: (tracked) => (s) => edgesHome(s, tracked),
+    progress: (s) => MIDDLE_EDGES.filter((slot) => edgesHome(s, [slot])).length
+  },
+  {
+    key: 'topCross',
+    name: 'Top cross',
+    detail: 'Last-layer edges flipped up',
+    generators: U_TURNS.concat([FLIP_EDGES]),
+    pieces: LAST_EDGES,
+    keyFor: () => (s) => slotKey(s, EO, LAST_EDGES),
+    goalFor: () => (s) => LAST_EDGES.every((slot) => s[EO + slot] === 0),
+    progress: (s) => LAST_EDGES.filter((slot) => s[EO + slot] === 0).length
+  },
+  {
+    key: 'topFace',
+    name: 'Top face',
+    detail: 'Last-layer corners twisted up',
+    generators: U_TURNS.concat([SUNE, ANTI_SUNE]),
+    pieces: LAST_CORNERS,
+    keyFor: () => (s) => slotKey(s, CO, LAST_CORNERS),
+    goalFor: () => (s) => LAST_CORNERS.every((slot) => s[CO + slot] === 0),
+    progress: (s) => LAST_CORNERS.filter((slot) => s[CO + slot] === 0).length
+  },
+  {
+    key: 'cornerPerm',
+    name: 'Corner positions',
+    detail: 'Last-layer corners sorted',
+    generators: U_TURNS.concat(withInverses([A_PERM])),
+    pieces: LAST_CORNERS,
+    keyFor: () => (s) => slotKey(s, CP, LAST_CORNERS),
+    goalFor: () => (s) => cornersHome(s, LAST_CORNERS),
+    progress: (s) => LAST_CORNERS.filter((slot) => cornersHome(s, [slot])).length
+  },
+  {
+    key: 'edgePerm',
+    name: 'Edge positions',
+    detail: 'Last-layer edges sorted',
+    generators: U_TURNS.concat(withInverses([U_PERM])),
+    pieces: LAST_EDGES,
+    keyFor: () => (s) => slotKey(s, EP, LAST_EDGES) + '|' + slotKey(s, CP, LAST_CORNERS),
+    goalFor: () => (s) => edgesHome(s, LAST_EDGES) && cornersHome(s, LAST_CORNERS),
+    // This goal covers the corners too: a stray U turn carries them off their
+    // slots along with the edges, so the count spans the whole last layer.
+    progressTotal: LAST_EDGES.length + LAST_CORNERS.length,
+    progress: (s) =>
+      LAST_EDGES.filter((slot) => edgesHome(s, [slot])).length +
+      LAST_CORNERS.filter((slot) => cornersHome(s, [slot])).length
+  }
+];
+
+// An incremental phase places its pieces one at a time, so each search ends
+// within a couple of moves instead of walking the whole space its key spans.
+const phaseSteps = (phase) =>
+  phase.incremental
+    ? phase.pieces.map((_, i) => phase.pieces.slice(0, i + 1))
+    : [phase.pieces];
+
+function runStep(state, phase, tracked) {
+  try {
+    return search(state, phase.generators, phase.keyFor(tracked), phase.goalFor(tracked));
+  } catch (err) {
+    throw new Error(`${phase.name}: ${err.message}`);
+  }
+}
+
+const phaseDone = (state, phase) => phase.goalFor(phase.pieces)(state);
+
+// How many of a phase's pieces are placed, and out of how many. Full always
+// means finished, so a practice meter can never read complete while it isn't.
+const phaseTotal = (phase) => phase.progressTotal || phase.pieces.length;
+
+// The phase the cube is currently up to, or null once it is solved.
+const currentPhase = (state) => PHASES.find((p) => !phaseDone(state, p)) || null;
+
+// The moves that finish the next piece of a phase — one placement, or one
+// last-layer algorithm. This is what a hint is made of.
+//
+// Unlike the full solve, which places pieces in a fixed order, a hint keeps
+// every piece already placed and adds one more. Someone practising may have
+// solved them in any order, and a hint that undid their work to restore the
+// solver's preferred order would read as the app taking a step backwards.
+function phaseHint(state, phase) {
+  if (phaseDone(state, phase)) return [];
+  if (!phase.incremental) return tidy(runStep(state, phase, phase.pieces));
+
+  const placed = phase.pieces.filter((piece) => phase.goalFor([piece])(state));
+  const next = phase.pieces.find((piece) => !placed.includes(piece));
+  return tidy(runStep(state, phase, placed.concat(next)));
+}
 
 function solveState(start) {
-  const stages = [];
   let state = start;
-
-  const run = (label, generators, keyOf, isGoal) => {
-    let moves;
-    try {
-      moves = search(state, generators, keyOf, isGoal);
-    } catch (err) {
-      throw new Error(`${label}: ${err.message}`);
-    }
-    state = applyMoves(state, moves);
-    return moves;
-  };
-
-  // Pieces go in one at a time. Each search then ends within a couple of
-  // moves, so it never has to walk the whole space its key could describe.
-  const stage = (name, detail, steps) => {
-    const moves = steps();
-    stages.push({ name, detail, moves });
-  };
-
-  stage('Bottom cross', 'Four edges around the D centre', () => {
+  return PHASES.map((phase) => {
     let moves = [];
-    const placed = [];
-    for (const slot of CROSS_EDGES) {
-      placed.push(slot);
-      const tracked = placed.slice();
-      moves = moves.concat(
-        run('cross', single(ALL_MOVES),
-          (s) => edgeKey(s, tracked),
-          (s) => edgesHome(s, tracked))
-      );
+    for (const tracked of phaseSteps(phase)) {
+      const found = runStep(state, phase, tracked);
+      state = applyMoves(state, found);
+      moves = moves.concat(found);
     }
-    return moves;
+    return { key: phase.key, name: phase.name, detail: phase.detail, moves };
   });
-
-  stage('Bottom corners', 'First layer complete', () => {
-    let moves = [];
-    const placed = [];
-    for (const slot of FIRST_CORNERS) {
-      placed.push(slot);
-      const tracked = placed.slice();
-      moves = moves.concat(
-        run('corners', U_TURNS.concat(CORNER_TRIGGERS),
-          (s) => cornerKey(s, tracked),
-          (s) => cornersHome(s, tracked))
-      );
-    }
-    return moves;
-  });
-
-  stage('Middle layer', 'Four edges between the centres', () => {
-    let moves = [];
-    const placed = [];
-    for (const slot of MIDDLE_EDGES) {
-      placed.push(slot);
-      const tracked = placed.slice();
-      moves = moves.concat(
-        run('middle', U_TURNS.concat(EDGE_INSERTS),
-          (s) => edgeKey(s, tracked),
-          (s) => edgesHome(s, tracked))
-      );
-    }
-    return moves;
-  });
-
-  stage('Top cross', 'Last-layer edges flipped up', () =>
-    run('flip', U_TURNS.concat([FLIP_EDGES]),
-      (s) => slotKey(s, EO, LAST_EDGES),
-      (s) => LAST_EDGES.every((slot) => s[EO + slot] === 0))
-  );
-
-  stage('Top face', 'Last-layer corners twisted up', () =>
-    run('twist', U_TURNS.concat([SUNE, ANTI_SUNE]),
-      (s) => slotKey(s, CO, LAST_CORNERS),
-      (s) => LAST_CORNERS.every((slot) => s[CO + slot] === 0))
-  );
-
-  stage('Corner positions', 'Last-layer corners sorted', () =>
-    run('corner perm', U_TURNS.concat(withInverses([A_PERM])),
-      (s) => slotKey(s, CP, LAST_CORNERS),
-      (s) => cornersHome(s, LAST_CORNERS))
-  );
-
-  stage('Edge positions', 'Last-layer edges sorted', () =>
-    run('edge perm', U_TURNS.concat(withInverses([U_PERM])),
-      (s) => slotKey(s, EP, LAST_EDGES) + '|' + slotKey(s, CP, LAST_CORNERS),
-      (s) => edgesHome(s, LAST_EDGES) && cornersHome(s, LAST_CORNERS))
-  );
-
-  return stages;
 }
 
 /* ---------- tidying the move list ---------- */

@@ -9,7 +9,7 @@
 <body>
 <header class="topbar">
   <h1>Rubik's Cube Solver</h1>
-  <p class="tagline">Enter the cube you're holding, get the turns that solve it.</p>
+  <p class="tagline">Solve the cube in your hands &mdash; and learn to do it yourself.</p>
 </header>
 
 <main>
@@ -32,31 +32,101 @@
         <output id="nowPlaying" class="now">&mdash;</output>
       </div>
     </div>
+
+    <div id="turnpad" class="turnpad" hidden>
+      <div class="turnpad-head">
+        <span>Turn the cube</span>
+        <span class="turnpad-tools">
+          <button id="flipView" class="small">Flip to bottom</button>
+          <button id="undoTurn" class="small">Undo</button>
+        </span>
+      </div>
+      <div id="turnButtons" class="turn-buttons"></div>
+      <p class="hint compact">Or use the keyboard: <kbd>U</kbd> <kbd>D</kbd> <kbd>L</kbd> <kbd>R</kbd> <kbd>F</kbd> <kbd>B</kbd>, with <kbd>Shift</kbd> for counter-clockwise.</p>
+    </div>
   </section>
 
   <section class="panel">
-    <div class="group">
-      <h2>Your cube</h2>
-      <p class="hint">Click a sticker to paint it. Centres set which colour is which face, so paint them the way you're holding the cube.</p>
-      <div id="palette" class="palette"></div>
-      <div id="net" class="net"></div>
-      <p id="validity" class="validity">&mdash;</p>
-      <div class="buttons">
-        <button id="scramble">Random scramble</button>
-        <button id="resetCube">Solved cube</button>
+    <div class="tabs" role="tablist">
+      <button id="tabSolve" class="tab active" role="tab" aria-selected="true">Solve</button>
+      <button id="tabLearn" class="tab" role="tab" aria-selected="false">Learn</button>
+    </div>
+
+    <div id="solvePanel" class="tabpanel" role="tabpanel">
+      <div class="group">
+        <h2>Your cube</h2>
+        <p class="hint">Click a sticker to paint it. Centres set which colour is which face, so paint them the way you're holding the cube.</p>
+        <div id="palette" class="palette"></div>
+        <div id="net" class="net"></div>
+        <p id="validity" class="validity">&mdash;</p>
+        <div class="buttons">
+          <button id="scramble">Random scramble</button>
+          <button id="resetCube">Solved cube</button>
+        </div>
+        <label class="field" for="notation">Or type a scramble</label>
+        <div class="row">
+          <input id="notation" type="text" placeholder="R U R' U' F2 L" spellcheck="false" autocomplete="off">
+          <button id="applyNotation">Apply</button>
+        </div>
       </div>
-      <label class="field" for="notation">Or type a scramble</label>
-      <div class="row">
-        <input id="notation" type="text" placeholder="R U R' U' F2 L" spellcheck="false" autocomplete="off">
-        <button id="applyNotation">Apply</button>
+
+      <div class="group">
+        <h2>Solution</h2>
+        <button id="solve" class="solve">Solve this cube</button>
+        <p id="summary" class="summary">Paint your cube, then solve it.</p>
+        <ol id="stages" class="stages"></ol>
       </div>
     </div>
 
-    <div class="group">
-      <h2>Solution</h2>
-      <button id="solve" class="solve">Solve this cube</button>
-      <p id="summary" class="summary">Paint your cube, then solve it.</p>
-      <ol id="stages" class="stages"></ol>
+    <div id="learnPanel" class="tabpanel" hidden role="tabpanel">
+      <div class="group">
+        <h2>The method</h2>
+        <p class="hint">Seven stages, each one building on the last. Work down the list &mdash; practise a stage until it sticks, then take the next.</p>
+        <ol id="course" class="course"></ol>
+        <p id="courseProgress" class="summary">&mdash;</p>
+      </div>
+
+      <div class="group" id="notationGroup">
+        <h2>Notation</h2>
+        <div id="notationList" class="notation"></div>
+        <p id="clockwiseNote" class="hint"></p>
+      </div>
+
+      <div class="group" id="lessonGroup" hidden>
+        <h2 id="lessonStage">Stage</h2>
+        <h3 id="lessonName" class="lesson-name"></h3>
+        <p id="lessonGoal" class="lesson-goal"></p>
+        <p id="lessonIdea" class="lesson-idea"></p>
+
+        <h4 class="lesson-head">What to look for</h4>
+        <ol id="lessonLook" class="lesson-look"></ol>
+
+        <div id="lessonAlgs"></div>
+
+        <h4 class="lesson-head">Why it works</h4>
+        <p id="lessonWhy" class="lesson-why"></p>
+
+        <p id="lessonCheck" class="lesson-check"></p>
+
+        <button id="startPractice" class="solve">Practise this stage</button>
+      </div>
+
+      <div class="group" id="practiceGroup" hidden>
+        <h2>Practice</h2>
+        <p id="practiceStage" class="lesson-name"></p>
+        <p id="practiceGoal" class="lesson-goal"></p>
+        <div class="progress">
+          <output id="practiceCount">0 / 4</output>
+          <div class="track"><div id="practiceBar" class="bar"></div></div>
+        </div>
+        <p id="practiceFeedback" class="summary">Your move.</p>
+        <div class="buttons three">
+          <button id="hint">Hint</button>
+          <button id="showStep">Show step</button>
+          <button id="newPractice">New cube</button>
+        </div>
+        <p id="hintText" class="hint-text" hidden></p>
+      </div>
     </div>
   </section>
 </main>
@@ -64,6 +134,7 @@
 <script src="cube.js"></script>
 <script src="solver.js"></script>
 <script src="facelets.js"></script>
+<script src="lessons.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
