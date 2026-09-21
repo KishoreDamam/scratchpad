@@ -12,6 +12,14 @@ naming exactly what the next episode needs from you.
 
 ## How this is structured
 
+Eight seasons are planned, taking you from "thinks in software" to front-end
+VLSI mastery. **`ROADMAP.md` has the full plan** — every season, every episode,
+the lab project that goes with each, and an honest account of what listening can
+and cannot do for you.
+
+**Season 1 — The Mental Model** is written and is below. Seasons 2 through 8 are
+planned and not yet written.
+
 **Season 1 — The Mental Model.** Twelve episodes, a bit over ten minutes each,
 about two and a half hours in total. That is one commuting day if you listen
 one way and think the other, or one long day if you binge.
@@ -30,7 +38,7 @@ Every episode has the same five beats, always in this order:
 Then a **commute exercise** — a question to chew on during the return leg. No
 paper needed. All of them are answerable in your head.
 
-## The season map
+## Season 1 map
 
 | # | Episode | The one idea |
 |---|---|---|
@@ -61,7 +69,8 @@ If you have to skip, skip 00. Never skip 02 or 03.
 ```
 Hardware_Thinking/
 ├─ README.md                  this file
-├─ episodes/                  one markdown script per episode
+├─ ROADMAP.md                 the eight-season plan to front-end VLSI mastery
+├─ episodes/                  one markdown script per episode (Season 1)
 └─ tools/
    ├─ narrate.py              strips a script down to spoken words only
    └─ AUDIO.md                how to turn the scripts into audio files
