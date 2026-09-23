@@ -25,18 +25,24 @@ const barEl = document.getElementById('bar');
 const playButton = document.getElementById('play');
 const notationInput = document.getElementById('notation');
 
-// The colour of each face is whatever the viewer painted on its centre, so a
-// cube held in an unusual orientation still shows up the way they see it.
-let paint = Object.fromEntries(FACE_ORDER.map((f) => [f, f]));
-const colourOf = (face) => FACES[paint[face]].color;
+const SCHEME_KEY = 'rubiks-scheme';
+const SCHEME_FACES = [
+  ['U', 'Top'], ['D', 'Bottom'], ['F', 'Front'],
+  ['B', 'Back'], ['L', 'Left'], ['R', 'Right']
+];
+
+// Which colour sits on each face of the viewer's own cube. Set directly in
+// the scheme panel, or read back from whatever they paint on the centres.
+let scheme = loadScheme();
+const colourOf = (face) => COLOURS[scheme[face]];
 
 let cube = new Cube();
-let colours = faceletsFromCube(cube);
+let colours = paintedFacelets();
 let solution = null;      // { stages, moves } once solved
 let cursor = 0;           // how many solution moves have been played
 let playing = false;
 let busy = false;
-let brush = 'U';
+let brush = 'white';
 let view = { x: -26, y: -34 };
 
 const elements = new Map();   // cubie -> DOM node
@@ -119,6 +125,126 @@ function animateTurn(face, quarters) {
   });
 }
 
+/* ---------- the viewer's colour scheme ---------- */
+
+// Storage can be missing or blocked, and stored text can be nonsense. Those
+// are the only failures worth absorbing — anything else is a bug in here, and
+// swallowing it would hide it, so it goes back up.
+function readStored(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch (err) {
+    if (err instanceof DOMException) return null;
+    throw err;
+  }
+}
+
+function writeStored(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (err) {
+    if (!(err instanceof DOMException)) throw err;
+  }
+}
+
+function loadScheme() {
+  const raw = readStored(SCHEME_KEY);
+  if (!raw) return { ...DEFAULT_SCHEME };
+  let saved;
+  try {
+    saved = JSON.parse(raw);
+  } catch (err) {
+    return { ...DEFAULT_SCHEME };
+  }
+  const usable = saved && FACE_ORDER.every((f) => COLOUR_KEYS.includes(saved[f]));
+  return usable ? saved : { ...DEFAULT_SCHEME };
+}
+
+const saveScheme = () => writeStored(SCHEME_KEY, JSON.stringify(scheme));
+
+// The cube's stickers, in the viewer's colours.
+function paintedFacelets() {
+  return faceletsFromCube(cube).map((face) => scheme[face]);
+}
+
+function buildScheme() {
+  const rows = document.getElementById('schemeRows');
+  for (const [face, label] of [['U', 'Top face'], ['F', 'Front face']]) {
+    const row = document.createElement('label');
+    row.className = 'scheme-row';
+
+    const name = document.createElement('span');
+    name.textContent = label;
+    row.appendChild(name);
+
+    const select = document.createElement('select');
+    select.dataset.face = face;
+    for (const colour of COLOUR_KEYS) {
+      const option = document.createElement('option');
+      option.value = colour;
+      option.textContent = colour;
+      select.appendChild(option);
+    }
+    select.addEventListener('change', chooseOrientation);
+    row.appendChild(select);
+    rows.appendChild(row);
+  }
+  renderScheme();
+}
+
+// Two colours name an orientation, and the remaining four follow from it, so
+// the viewer can never build an impossible cube here by accident.
+function chooseOrientation() {
+  const top = document.querySelector('#schemeRows select[data-face="U"]').value;
+  const front = document.querySelector('#schemeRows select[data-face="F"]').value;
+  const next = schemeFromTopAndFront(top, front);
+
+  if (!next) {
+    const note = document.getElementById('schemeNote');
+    note.textContent = top === front
+      ? `Both faces can't be ${top}.`
+      : `${top} and ${front} are on opposite sides of the cube, so you can't see both at once. Pick a colour next to ${top}.`;
+    note.className = 'hint bad';
+    document.getElementById('schemeBox').classList.add('flagged');
+    return;
+  }
+
+  scheme = next;
+  saveScheme();
+  colours = paintedFacelets();
+  renderScheme();
+  renderNet();
+  buildCube();
+  validate();
+  discardSolution();
+}
+
+function renderScheme() {
+  for (const select of document.querySelectorAll('#schemeRows select')) {
+    select.value = scheme[select.dataset.face];
+  }
+
+  const derived = document.getElementById('schemeDerived');
+  derived.textContent = '';
+  for (const [face, label] of SCHEME_FACES) {
+    const cell = document.createElement('span');
+    cell.className = 'scheme-cell';
+    cell.innerHTML =
+      `<span class="scheme-chip" style="background:${COLOURS[scheme[face]]}"></span>` +
+      `<span>${label}</span>`;
+    cell.title = `${label}: ${scheme[face]}`;
+    derived.appendChild(cell);
+  }
+
+  // Painting the centres can still describe a cube that cannot exist, so the
+  // check stays even though the selects above cannot produce one.
+  const problem = schemeProblem(scheme);
+  const note = document.getElementById('schemeNote');
+  note.textContent = problem || 'This matches a real cube.';
+  note.className = problem ? 'hint bad' : 'hint ok';
+  document.getElementById('schemeBox').classList.toggle('flagged', Boolean(problem));
+}
+
 /* ---------- the net ---------- */
 
 const NET_ORIGIN = { U: [3, 0], L: [0, 3], F: [3, 3], R: [6, 3], B: [9, 3], D: [3, 6] };
@@ -141,27 +267,27 @@ function buildNet() {
 
 function renderNet() {
   colours.forEach((colour, i) => {
-    faceletEls[i].style.background = FACES[colour].color;
+    faceletEls[i].style.background = COLOURS[colour];
     faceletEls[i].setAttribute(
-      'aria-label', `${FACELETS[i].face} face, ${FACES[colour].name} sticker`
+      'aria-label', `${FACELETS[i].face} face, ${colour} sticker`
     );
   });
 }
 
 function buildPalette() {
-  for (const face of FACE_ORDER) {
+  for (const colour of COLOUR_KEYS) {
     const swatch = document.createElement('button');
     swatch.className = 'swatch';
     swatch.type = 'button';
-    swatch.style.background = FACES[face].color;
-    swatch.title = FACES[face].name;
-    swatch.setAttribute('aria-label', FACES[face].name);
+    swatch.style.background = COLOURS[colour];
+    swatch.title = colour;
+    swatch.setAttribute('aria-label', colour);
     swatch.addEventListener('click', () => {
-      brush = face;
+      brush = colour;
       for (const el of paletteEl.children) el.classList.remove('active');
       swatch.classList.add('active');
     });
-    if (face === brush) swatch.classList.add('active');
+    if (colour === brush) swatch.classList.add('active');
     paletteEl.appendChild(swatch);
   }
 }
@@ -193,19 +319,23 @@ function validate() {
   }
 }
 
+// The centres are what name the faces, so painting them is the same act as
+// setting the scheme — read it back rather than keeping a second copy.
 function adoptState(state) {
-  paint = Object.fromEntries(
+  scheme = Object.fromEntries(
     FACE_ORDER.map((face) => [face, colours[faceletAt(face, FACES[face].axis)]])
   );
+  saveScheme();
+  renderScheme();
   cube = cubeFromState(state);
   buildCube();
 }
 
-// Replaces the whole cube, e.g. after a scramble or a reset.
+// Replaces the whole cube, e.g. after a scramble or a reset. The viewer's
+// colour scheme survives it — only the arrangement changes.
 function adoptCube(next) {
   cube = next;
-  colours = faceletsFromCube(cube);
-  paint = Object.fromEntries(FACE_ORDER.map((f) => [f, f]));
+  colours = paintedFacelets();
   renderNet();
   buildCube();
   validate();
@@ -327,7 +457,7 @@ async function applyStep(forward) {
   busy = true;
   await animateTurn(face, forward ? quarters : (quarters === 2 ? 2 : -quarters));
   cursor += forward ? 1 : -1;
-  colours = faceletsFromCube(cube);
+  colours = paintedFacelets();
   busy = false;
   updateProgress();
 }
@@ -348,7 +478,7 @@ function seekTo(target) {
     cube.turn(face, quarters === 2 ? 2 : -quarters);
     cursor -= 1;
   }
-  colours = faceletsFromCube(cube);
+  colours = paintedFacelets();
   renderCube();
   updateProgress();
 }
@@ -503,21 +633,17 @@ let turnHistory = [];
 const LEARNED_KEY = 'rubiks-learned';
 
 function loadLearned() {
+  const raw = readStored(LEARNED_KEY);
+  if (!raw) return new Set();
   try {
-    const raw = localStorage.getItem(LEARNED_KEY);
-    return new Set(raw ? JSON.parse(raw) : []);
+    const saved = JSON.parse(raw);
+    return new Set(Array.isArray(saved) ? saved : []);
   } catch (err) {
     return new Set();
   }
 }
 
-function saveLearned() {
-  try {
-    localStorage.setItem(LEARNED_KEY, JSON.stringify([...learned]));
-  } catch (err) {
-    /* a private window or blocked storage: progress just won't persist */
-  }
-}
+const saveLearned = () => writeStored(LEARNED_KEY, JSON.stringify([...learned]));
 
 let learned = loadLearned();
 
@@ -677,8 +803,7 @@ function startPractice(key) {
   practicePhase = phaseFor(key);
   turnHistory = [];
   cube = next;
-  colours = faceletsFromCube(cube);
-  paint = Object.fromEntries(FACE_ORDER.map((f) => [f, f]));
+  colours = paintedFacelets();
   renderNet();
   buildCube();
   discardSolution();
@@ -778,7 +903,7 @@ async function manualTurn(face, quarters) {
   busy = true;
   await animateTurn(face, quarters);
   turnHistory.push({ face, quarters });
-  colours = faceletsFromCube(cube);
+  colours = paintedFacelets();
   renderNet();
   busy = false;
   updatePractice('Your move.');
@@ -816,7 +941,7 @@ document.getElementById('undoTurn').addEventListener('click', async () => {
   const last = turnHistory.pop();
   busy = true;
   await animateTurn(last.face, last.quarters === 2 ? 2 : -last.quarters);
-  colours = faceletsFromCube(cube);
+  colours = paintedFacelets();
   renderNet();
   busy = false;
   updatePractice('Undone.');
@@ -834,6 +959,7 @@ document.addEventListener('keydown', (event) => {
 
 /* ---------- boot ---------- */
 
+buildScheme();
 buildPalette();
 buildNet();
 buildNotation();

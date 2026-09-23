@@ -24,12 +24,27 @@ face, `'` for counter-clockwise, `2` for a half turn.
 
 ## Learn
 
-The method solves the bottom layer first, and the default colours put white
-there — so stage one builds the white cross most tutorials start with. That is
-an ordinary cube held upside down: turning it over swaps left and right too,
-so red sits on the left of green rather than the right. Paint the centres any
-way you like and the lessons still read correctly; they name the bottom colour
-rather than assuming it.
+### Matching your cube
+
+Colour is not a property of a face — it is a property of the cube in your
+hands. Open **Colour scheme** and name two faces: the top colour and the front
+colour. That fixes all six, because a cube can only be held 24 ways and no two
+of them agree on the top and front.
+
+Read the **centre** square of each face. Centres never move, so they are the
+only stickers that say which face is which; reading a corner or an edge off a
+scrambled cube will describe a cube that does not exist. The app says so when
+that happens, rather than solving a cube you cannot hold:
+
+- two faces given the same colour
+- colours that are opposite each other picked as top and front
+- a set of centres whose opposite pairs are not white/yellow, red/orange and
+  green/blue
+
+The method solves the bottom layer first, so the cross is whatever colour sits
+underneath. The default puts white there — stage one builds the white cross
+most tutorials start with — but the lessons name the bottom colour rather than
+assuming it, so they read correctly in any scheme.
 
 The same seven stages, taught one at a time. Each lesson gives the goal, what
 to look for on the cube, the algorithm (with a **Watch it** button that runs it
@@ -109,9 +124,12 @@ The model and solver are covered by assertions run under Node:
 - **5000 random scrambles, all solved** — averaging 114 moves, worst case 18ms.
 - the net round-trips through a state and back, and each impossible cube is
   rejected with the right reason.
-- the default colours are some orientation of a real cube, checked against all
-  24 rotations of the standard scheme — a mirror-image palette looks plausible
-  and cannot be built.
+- colour schemes: the default is a real cube, and so is every one of its 24
+  turned versions; naming a top and front colour yields exactly the 24 real
+  orientations and nothing for same or opposite pairs; white on top with green
+  in front puts red on the right. Mirror images and non-standard opposite
+  pairs are rejected with the reason — both look plausible and cannot be
+  built.
 - every lesson matches the solver: the algorithms it teaches are generators
   the solver actually uses, and the cross stage teaches none.
 - phases complete in order and stay complete; progress counters read full

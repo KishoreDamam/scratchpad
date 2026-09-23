@@ -419,3 +419,63 @@ button.small {
   border-radius: 8px;
 }
 .hint-text .muted { color: var(--muted); }
+
+/* ---------- colour scheme ---------- */
+
+.scheme {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--sunken);
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+.scheme[open] { padding-bottom: 12px; }
+.scheme.flagged { border-color: var(--bad); }
+
+.scheme summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--muted);
+  list-style-position: outside;
+}
+.scheme summary:hover { color: var(--text); }
+.scheme .hint { margin: 10px 0; }
+.scheme .hint.ok { color: var(--good); }
+.scheme .hint.bad { color: var(--bad); }
+
+.scheme-rows {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.scheme-row { display: contents; }
+
+.scheme-derived {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px 10px;
+  margin-top: 12px;
+}
+
+.scheme-cell { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.scheme-row > span:first-child { font-size: 12px; color: var(--muted); }
+
+.scheme-chip {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid #0b0b0d;
+}
+
+.scheme select {
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: #22222b;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 4px 6px;
+  width: 100%;
+}

@@ -10,20 +10,34 @@
  * axis, so the animation and the state stay in sync.
  */
 
-// The default colours put white on the bottom, because the method solves the
-// bottom layer first and the cross everyone learns is the white one.
-//
-// That is the ordinary cube held upside down, so the sides swap with it: turn
-// a standard cube over (white up to white down) and left and right trade
-// places. Swapping only the top and bottom would describe a mirror-image cube
-// that cannot be built — hence red on the left here, not the right.
+// Colour is not a property of a face — it is a property of the cube in your
+// hands. FACES carries only geometry; which colour sits where is a scheme,
+// and the viewer can set their own.
+const COLOURS = {
+  white: '#f7f7f5',
+  yellow: '#ffd500',
+  green: '#00a04b',
+  blue: '#0051ba',
+  red: '#d2281f',
+  orange: '#ff6a00'
+};
+
+const COLOUR_KEYS = Object.keys(COLOURS);
+
+// White on the bottom, because the method solves the bottom layer first and
+// the cross everyone learns is the white one. This is an ordinary cube held
+// upside down, so left and right are swapped with it.
+const DEFAULT_SCHEME = {
+  U: 'yellow', D: 'white', F: 'green', B: 'blue', R: 'orange', L: 'red'
+};
+
 const FACES = {
-  U: { axis: [0, -1, 0], color: '#ffd500', name: 'yellow' },
-  D: { axis: [0, 1, 0], color: '#f7f7f5', name: 'white' },
-  F: { axis: [0, 0, 1], color: '#00a04b', name: 'green' },
-  B: { axis: [0, 0, -1], color: '#0051ba', name: 'blue' },
-  R: { axis: [1, 0, 0], color: '#ff6a00', name: 'orange' },
-  L: { axis: [-1, 0, 0], color: '#d2281f', name: 'red' }
+  U: { axis: [0, -1, 0] },
+  D: { axis: [0, 1, 0] },
+  F: { axis: [0, 0, 1] },
+  B: { axis: [0, 0, -1] },
+  R: { axis: [1, 0, 0] },
+  L: { axis: [-1, 0, 0] }
 };
 
 const FACE_ORDER = ['U', 'D', 'L', 'R', 'F', 'B'];
@@ -174,4 +188,90 @@ function isOpposite(a, b) {
   const [ax, ay, az] = FACES[a].axis;
   const [bx, by, bz] = FACES[b].axis;
   return ax === -bx && ay === -by && az === -bz;
+}
+
+/* ---------- checking a colour scheme ---------- */
+
+// On a mass-produced cube these three pairs are always opposite each other.
+const STANDARD_OPPOSITES = [
+  ['white', 'yellow'], ['red', 'orange'], ['green', 'blue']
+];
+
+const OPPOSITE_FACES = [['U', 'D'], ['F', 'B'], ['L', 'R']];
+
+// The 24 ways a cube can be turned, as rotation matrices.
+const ROTATIONS = (() => {
+  const key = (m) => m.flat().join(',');
+  const identity = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  const found = new Map([[key(identity), identity]]);
+  let frontier = [identity];
+  while (frontier.length) {
+    const next = [];
+    for (const m of frontier) {
+      for (const axis of [[1, 0, 0], [0, 1, 0], [0, 0, 1]]) {
+        const turned = multiply(rotationMatrix(axis, 90), m);
+        if (!found.has(key(turned))) {
+          found.set(key(turned), turned);
+          next.push(turned);
+        }
+      }
+    }
+    frontier = next;
+  }
+  return [...found.values()];
+})();
+
+const faceWithAxis = (axis) =>
+  FACE_ORDER.find((f) => FACES[f].axis.every((v, i) => v === axis[i]));
+
+// Is this scheme some orientation of a standard cube? Getting the opposite
+// pairs right is not enough: swapping just one pair gives a mirror image,
+// which looks entirely plausible and cannot be built.
+function isRealScheme(scheme) {
+  return ROTATIONS.some((m) =>
+    FACE_ORDER.every((face) => {
+      const moved = faceWithAxis(apply(m, FACES[face].axis));
+      return DEFAULT_SCHEME[moved] === scheme[face];
+    })
+  );
+}
+
+// Every orientation a real cube can be held in.
+const REAL_SCHEMES = ROTATIONS.map((m) =>
+  Object.fromEntries(FACE_ORDER.map((face) => {
+    const moved = faceWithAxis(apply(m, FACES[face].axis));
+    return [face, DEFAULT_SCHEME[moved]];
+  }))
+);
+
+// Naming the top and front colours fixes a cube completely — the other four
+// faces follow. Returns null when no cube can be held that way, which is the
+// case exactly when the two colours are the same or opposite each other.
+function schemeFromTopAndFront(top, front) {
+  return REAL_SCHEMES.find((s) => s.U === top && s.F === front) || null;
+}
+
+// Why a scheme does not describe a real cube, in words, or null if it does.
+function schemeProblem(scheme) {
+  const used = new Set(FACE_ORDER.map((f) => scheme[f]));
+  if (used.size !== 6) return 'Each of the six colours belongs on exactly one face.';
+
+  for (const [a, b] of OPPOSITE_FACES) {
+    const pair = [scheme[a], scheme[b]];
+    const standard = STANDARD_OPPOSITES.some(
+      (o) => o.includes(pair[0]) && o.includes(pair[1])
+    );
+    if (!standard) {
+      return `You have ${pair[0]} opposite ${pair[1]}. On a normal cube white is ` +
+        'opposite yellow, red opposite orange and green opposite blue. Read the ' +
+        'centre square of each face — centres never move, so they are the only ' +
+        'colours that say which face is which.';
+    }
+  }
+
+  if (!isRealScheme(scheme)) {
+    return 'The opposite pairs are right, but this arrangement is a mirror ' +
+      'image of a real cube — two of the side faces need swapping.';
+  }
+  return null;
 }

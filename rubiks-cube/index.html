@@ -55,7 +55,14 @@
     <div id="solvePanel" class="tabpanel" role="tabpanel">
       <div class="group">
         <h2>Your cube</h2>
-        <p class="hint">Click a sticker to paint it. Centres set which colour is which face, so paint them the way you're holding the cube.</p>
+        <details id="schemeBox" class="scheme">
+          <summary>Colour scheme &mdash; which colour is on each face</summary>
+          <p class="hint">Hold your cube still and read the <strong>centre</strong> square of two faces. Centres never move, so they are the only stickers that say which face is which &mdash; and naming two of them fixes all six.</p>
+          <div id="schemeRows" class="scheme-rows"></div>
+          <div id="schemeDerived" class="scheme-derived"></div>
+          <p id="schemeNote" class="hint"></p>
+        </details>
+        <p class="hint">Click a sticker to paint it.</p>
         <div id="palette" class="palette"></div>
         <div id="net" class="net"></div>
         <p id="validity" class="validity">&mdash;</p>
