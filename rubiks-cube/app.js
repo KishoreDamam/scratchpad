@@ -686,6 +686,8 @@ function startPractice(key) {
   learnEls.practiceStage.textContent = practicePhase.name;
   learnEls.practiceGoal.textContent = LESSONS[key].goal;
   learnEls.hintText.hidden = true;
+  // The cross is built on the face you cannot see from the default angle.
+  setViewFromBelow(key === 'cross');
   updatePractice('Your move.');
   learnEls.practice.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
@@ -797,12 +799,16 @@ function buildTurnPad() {
 }
 
 // The first stage is built on the bottom face, which the default angle hides.
-document.getElementById('flipView').addEventListener('click', (event) => {
-  view.x = view.x < 0 ? 32 : -26;
-  event.target.textContent = view.x < 0 ? 'Flip to bottom' : 'Flip to top';
+function setViewFromBelow(below) {
+  view.x = below ? 32 : -26;
+  document.getElementById('flipView').textContent = below ? 'Flip to top' : 'Flip to bottom';
   cubeEl.classList.add('flipping');
   updateView();
   setTimeout(() => cubeEl.classList.remove('flipping'), 500);
+}
+
+document.getElementById('flipView').addEventListener('click', () => {
+  setViewFromBelow(view.x < 0);
 });
 
 document.getElementById('undoTurn').addEventListener('click', async () => {

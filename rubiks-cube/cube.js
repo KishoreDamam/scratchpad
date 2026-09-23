@@ -10,13 +10,20 @@
  * axis, so the animation and the state stay in sync.
  */
 
+// The default colours put white on the bottom, because the method solves the
+// bottom layer first and the cross everyone learns is the white one.
+//
+// That is the ordinary cube held upside down, so the sides swap with it: turn
+// a standard cube over (white up to white down) and left and right trade
+// places. Swapping only the top and bottom would describe a mirror-image cube
+// that cannot be built — hence red on the left here, not the right.
 const FACES = {
-  U: { axis: [0, -1, 0], color: '#f7f7f5', name: 'white' },
-  D: { axis: [0, 1, 0], color: '#ffd500', name: 'yellow' },
+  U: { axis: [0, -1, 0], color: '#ffd500', name: 'yellow' },
+  D: { axis: [0, 1, 0], color: '#f7f7f5', name: 'white' },
   F: { axis: [0, 0, 1], color: '#00a04b', name: 'green' },
   B: { axis: [0, 0, -1], color: '#0051ba', name: 'blue' },
-  R: { axis: [1, 0, 0], color: '#d2281f', name: 'red' },
-  L: { axis: [-1, 0, 0], color: '#ff6a00' }
+  R: { axis: [1, 0, 0], color: '#ff6a00', name: 'orange' },
+  L: { axis: [-1, 0, 0], color: '#d2281f', name: 'red' }
 };
 
 const FACE_ORDER = ['U', 'D', 'L', 'R', 'F', 'B'];

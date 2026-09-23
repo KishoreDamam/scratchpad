@@ -29,9 +29,12 @@ const LESSONS = {
     idea:
       'Nothing is solved yet, so this stage needs no algorithm at all — every ' +
       'piece has a clear path. Work it out by looking, not by memorising. ' +
-      'Getting comfortable here is what makes the rest readable.',
+      'Getting comfortable here is what makes the rest readable. In the ' +
+      'default colours the bottom is white, so this is the white cross most ' +
+      'tutorials start with — though the app follows whatever you painted on ' +
+      'the centres, and the steps read the same in any scheme.',
     look: [
-      'Find an edge carrying the bottom colour. Its other colour tells you which side it belongs to.',
+      'Find an edge carrying the bottom colour — white by default. Its other colour tells you which side it belongs to.',
       'If it is stuck in the bottom or middle layer, turn it up into the top layer first.',
       'Spin U until it hovers over its own side face.',
       'Bottom colour pointing up? Turn that side face twice and it drops straight in.',

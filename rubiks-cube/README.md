@@ -24,6 +24,13 @@ face, `'` for counter-clockwise, `2` for a half turn.
 
 ## Learn
 
+The method solves the bottom layer first, and the default colours put white
+there — so stage one builds the white cross most tutorials start with. That is
+an ordinary cube held upside down: turning it over swaps left and right too,
+so red sits on the left of green rather than the right. Paint the centres any
+way you like and the lessons still read correctly; they name the bottom colour
+rather than assuming it.
+
 The same seven stages, taught one at a time. Each lesson gives the goal, what
 to look for on the cube, the algorithm (with a **Watch it** button that runs it
 in front of you), why it works, and how to tell when the stage is done.
@@ -102,6 +109,9 @@ The model and solver are covered by assertions run under Node:
 - **5000 random scrambles, all solved** — averaging 114 moves, worst case 18ms.
 - the net round-trips through a state and back, and each impossible cube is
   rejected with the right reason.
+- the default colours are some orientation of a real cube, checked against all
+  24 rotations of the standard scheme — a mirror-image palette looks plausible
+  and cannot be built.
 - every lesson matches the solver: the algorithms it teaches are generators
   the solver actually uses, and the cross stage teaches none.
 - phases complete in order and stay complete; progress counters read full
