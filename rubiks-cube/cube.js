@@ -24,11 +24,26 @@ const COLOURS = {
 
 const COLOUR_KEYS = Object.keys(COLOURS);
 
-// White on the bottom, because the method solves the bottom layer first and
-// the cross everyone learns is the white one. This is an ordinary cube held
-// upside down, so left and right are swapped with it.
+// This cube's colours, as its owner holds it: white on top, red in front,
+// orange left, yellow right, green underneath, blue behind. Its opposite
+// pairs are white/green, red/blue and orange/yellow.
+//
+// Colour never reaches the solver, which works in face letters throughout, so
+// the pairing is purely what you see — every orientation, validation and
+// lesson below is derived from this one declaration.
+const CUBE_SCHEME = {
+  U: 'white', D: 'green', F: 'red', B: 'blue', L: 'orange', R: 'yellow'
+};
+
+const OPPOSITE_COLOURS = [
+  ['white', 'green'], ['red', 'blue'], ['orange', 'yellow']
+];
+
+// The app opens with that cube turned white-side-down: the method solves the
+// bottom layer first, so this is what makes the course's first stage the
+// white cross. It is the same cube, rolled over.
 const DEFAULT_SCHEME = {
-  U: 'yellow', D: 'white', F: 'green', B: 'blue', R: 'orange', L: 'red'
+  U: 'green', D: 'white', F: 'red', B: 'blue', L: 'yellow', R: 'orange'
 };
 
 const FACES = {
@@ -192,11 +207,6 @@ function isOpposite(a, b) {
 
 /* ---------- checking a colour scheme ---------- */
 
-// On a mass-produced cube these three pairs are always opposite each other.
-const STANDARD_OPPOSITES = [
-  ['white', 'yellow'], ['red', 'orange'], ['green', 'blue']
-];
-
 const OPPOSITE_FACES = [['U', 'D'], ['F', 'B'], ['L', 'R']];
 
 // The 24 ways a cube can be turned, as rotation matrices.
@@ -228,19 +238,14 @@ const faceWithAxis = (axis) =>
 // pairs right is not enough: swapping just one pair gives a mirror image,
 // which looks entirely plausible and cannot be built.
 function isRealScheme(scheme) {
-  return ROTATIONS.some((m) =>
-    FACE_ORDER.every((face) => {
-      const moved = faceWithAxis(apply(m, FACES[face].axis));
-      return DEFAULT_SCHEME[moved] === scheme[face];
-    })
-  );
+  return REAL_SCHEMES.some((real) => FACE_ORDER.every((f) => real[f] === scheme[f]));
 }
 
 // Every orientation a real cube can be held in.
 const REAL_SCHEMES = ROTATIONS.map((m) =>
   Object.fromEntries(FACE_ORDER.map((face) => {
     const moved = faceWithAxis(apply(m, FACES[face].axis));
-    return [face, DEFAULT_SCHEME[moved]];
+    return [face, CUBE_SCHEME[moved]];
   }))
 );
 
@@ -258,14 +263,15 @@ function schemeProblem(scheme) {
 
   for (const [a, b] of OPPOSITE_FACES) {
     const pair = [scheme[a], scheme[b]];
-    const standard = STANDARD_OPPOSITES.some(
+    const known = OPPOSITE_COLOURS.some(
       (o) => o.includes(pair[0]) && o.includes(pair[1])
     );
-    if (!standard) {
-      return `You have ${pair[0]} opposite ${pair[1]}. On a normal cube white is ` +
-        'opposite yellow, red opposite orange and green opposite blue. Read the ' +
-        'centre square of each face — centres never move, so they are the only ' +
-        'colours that say which face is which.';
+    if (!known) {
+      const pairs = OPPOSITE_COLOURS.map(([a, b]) => `${a} opposite ${b}`);
+      return `You have ${pair[0]} opposite ${pair[1]}. On this cube it is ` +
+        `${pairs.slice(0, -1).join(', ')} and ${pairs[pairs.length - 1]}. ` +
+        'Read the centre square of each face — centres never move, so they are ' +
+        'the only colours that say which face is which.';
     }
   }
 

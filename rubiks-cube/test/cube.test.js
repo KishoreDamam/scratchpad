@@ -39,73 +39,76 @@ for(const cu of c.cubies) for(const f of cu.stickers) counts[f]=(counts[f]||0)+1
 assert(FACE_ORDER.every(f=>counts[f]===9), 'nine stickers per colour');
 console.log('all cube model checks passed');
 
-// The default colours must describe a cube that can actually be built, and so
-// must anything a viewer sets in the scheme panel. A mirror-image scheme
-// (swapping one pair of opposite faces) looks plausible and is impossible.
+// Every orientation, validation and lesson is derived from one declaration of
+// this cube's colours, so that is what gets checked.
 {
   assert.strictEqual(ROTATIONS.length, 24, 'the rotation group has 24 elements');
-  assert(isRealScheme(DEFAULT_SCHEME), 'the default scheme is not a real cube');
+  assert.strictEqual(REAL_SCHEMES.length, 24, 'a cube can be held 24 ways');
+
+  // the owner's cube: white up, red front, orange left, yellow right
+  assert(isRealScheme(CUBE_SCHEME), 'the declared cube is not one of its own orientations');
+  assert.strictEqual(schemeProblem(CUBE_SCHEME), null, 'the declared cube is flagged');
+
+  // the app opens with the same cube rolled white-side-down, so the course's
+  // first stage builds the white cross
+  assert(isRealScheme(DEFAULT_SCHEME), 'the default scheme is not this cube');
   assert.strictEqual(schemeProblem(DEFAULT_SCHEME), null, 'the default scheme is flagged');
   assert.strictEqual(DEFAULT_SCHEME.D, 'white', 'the course builds the white cross');
 
-  // all six colours, each used once, each with a real hex value
-  assert.strictEqual(new Set(FACE_ORDER.map(f=>DEFAULT_SCHEME[f])).size, 6, 'six distinct colours');
+  // opposite pairs hold in every orientation
+  for (const scheme of REAL_SCHEMES) {
+    for (const [a, b] of [['U','D'],['F','B'],['L','R']]) {
+      const pair = [scheme[a], scheme[b]];
+      assert(OPPOSITE_COLOURS.some(o => o.includes(pair[0]) && o.includes(pair[1])),
+        `${pair.join('/')} are not an opposite pair on this cube`);
+    }
+    assert.strictEqual(new Set(FACE_ORDER.map(f=>scheme[f])).size, 6, 'six distinct colours');
+  }
   for (const key of COLOUR_KEYS) assert(/^#[0-9a-f]{6}$/.test(COLOURS[key]), `${key} has no colour`);
 
-  // every orientation of the default cube must also read as real
-  for (const m of ROTATIONS) {
-    const turned = Object.fromEntries(FACE_ORDER.map((face) => {
-      const moved = FACE_ORDER.find(f => FACES[f].axis.every((v,i) => v === apply(m, FACES[face].axis)[i]));
-      return [face, DEFAULT_SCHEME[moved]];
-    }));
-    assert(isRealScheme(turned), 'a turned cube was rejected: ' + JSON.stringify(turned));
-  }
-
   // a mirror image: swap one pair of opposite faces and nothing else
-  const mirrored = { ...DEFAULT_SCHEME, L: DEFAULT_SCHEME.R, R: DEFAULT_SCHEME.L };
+  const mirrored = { ...CUBE_SCHEME, L: CUBE_SCHEME.R, R: CUBE_SCHEME.L };
   assert(!isRealScheme(mirrored), 'a mirrored scheme was accepted');
-  assert(/mirror image/.test(schemeProblem(mirrored)), 'mirrored scheme not explained: ' + schemeProblem(mirrored));
+  assert(/mirror image/.test(schemeProblem(mirrored)), 'mirrored scheme not explained');
 
-  // non-standard opposites, e.g. reading stickers off a scrambled cube
-  const misread = { U:'white', D:'green', F:'red', B:'blue', L:'orange', R:'yellow' };
-  const problem = schemeProblem(misread);
-  assert(problem && /opposite/.test(problem), 'a non-standard pairing was not explained');
+  // pairings from a different cube, e.g. read off a scrambled one
+  const foreign = { U:'white', D:'yellow', F:'green', B:'blue', L:'orange', R:'red' };
+  const problem = schemeProblem(foreign);
+  assert(problem && /opposite/.test(problem), 'a foreign pairing was not explained');
   assert(/centre/.test(problem), 'the explanation should point at the centres');
 
   // a colour used twice
-  assert(/exactly one face/.test(schemeProblem({ ...DEFAULT_SCHEME, F: DEFAULT_SCHEME.U })));
+  assert(/exactly one face/.test(schemeProblem({ ...CUBE_SCHEME, F: CUBE_SCHEME.U })));
 }
-console.log('colour schemes: default is real, mirrors and misreads are caught');
+console.log('colour schemes: this cube is real, mirrors and foreign pairings are caught');
 
-// Naming the top and front colours must fix a cube exactly: every adjacent
-// pair gives one real orientation, and no same-or-opposite pair gives any.
+// Naming the top and front colours must fix the cube exactly: every adjacent
+// pair gives one orientation, and no same-or-opposite pair gives any.
 {
   const opposite = {};
-  for (const [a, b] of STANDARD_OPPOSITES) { opposite[a] = b; opposite[b] = a; }
+  for (const [a, b] of OPPOSITE_COLOURS) { opposite[a] = b; opposite[b] = a; }
 
   let real = 0;
   for (const top of COLOUR_KEYS) {
     for (const front of COLOUR_KEYS) {
       const scheme = schemeFromTopAndFront(top, front);
-      const possible = top !== front && opposite[top] !== front;
-      if (!possible) {
+      if (top === front || opposite[top] === front) {
         assert.strictEqual(scheme, null, `${top}/${front} should be impossible`);
         continue;
       }
       assert(scheme, `${top} on top with ${front} in front should be a real cube`);
       assert.strictEqual(scheme.U, top);
       assert.strictEqual(scheme.F, front);
-      assert.strictEqual(schemeProblem(scheme), null, `${top}/${front} was flagged: ${schemeProblem(scheme)}`);
+      assert.strictEqual(schemeProblem(scheme), null, `${top}/${front} was flagged`);
       real++;
     }
   }
   assert.strictEqual(real, 24, `expected 24 orientations, got ${real}`);
 
-  // the arrangement most tutorials describe
-  const classic = schemeFromTopAndFront('white', 'green');
-  assert.strictEqual(classic.R, 'red', 'white up, green front should put red on the right');
-  assert.strictEqual(classic.D, 'yellow');
-  assert.strictEqual(classic.L, 'orange');
-  assert.strictEqual(classic.B, 'blue');
+  // the arrangement its owner described, exactly
+  const held = schemeFromTopAndFront('white', 'red');
+  assert.deepStrictEqual(held,
+    { U:'white', D:'green', F:'red', B:'blue', L:'orange', R:'yellow' },
+    'white on top with red in front should be orange left, yellow right, green under, blue behind');
 }
 console.log('top + front fixes exactly the 24 real orientations');

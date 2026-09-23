@@ -38,13 +38,20 @@ that happens, rather than solving a cube you cannot hold:
 
 - two faces given the same colour
 - colours that are opposite each other picked as top and front
-- a set of centres whose opposite pairs are not white/yellow, red/orange and
-  green/blue
+- centres whose opposite pairs are not this cube's
+
+This cube's opposite pairs are **white/green, red/blue and orange/yellow**,
+declared once as `CUBE_SCHEME` in `cube.js` — white on top, red in front,
+orange left, yellow right, green underneath, blue behind. Every orientation,
+every validation message and the whole scheme panel is derived from that one
+line, so a differently coloured cube is a one-line change and the tests follow
+it. Colour never reaches the solver, which works in face letters from end to
+end.
 
 The method solves the bottom layer first, so the cross is whatever colour sits
-underneath. The default puts white there — stage one builds the white cross
-most tutorials start with — but the lessons name the bottom colour rather than
-assuming it, so they read correctly in any scheme.
+underneath. The app opens with the cube rolled white-side-down, which is what
+makes stage one the white cross — the lessons name the bottom colour rather
+than assuming it, so they read correctly whichever way you set it up.
 
 The same seven stages, taught one at a time. Each lesson gives the goal, what
 to look for on the cube, the algorithm (with a **Watch it** button that runs it
@@ -124,12 +131,13 @@ The model and solver are covered by assertions run under Node:
 - **5000 random scrambles, all solved** — averaging 114 moves, worst case 18ms.
 - the net round-trips through a state and back, and each impossible cube is
   rejected with the right reason.
-- colour schemes: the default is a real cube, and so is every one of its 24
-  turned versions; naming a top and front colour yields exactly the 24 real
-  orientations and nothing for same or opposite pairs; white on top with green
-  in front puts red on the right. Mirror images and non-standard opposite
-  pairs are rejected with the reason — both look plausible and cannot be
-  built.
+- colour schemes: the declared cube and the app's default orientation are both
+  real, all 24 turned versions keep the opposite pairs, and naming a top and
+  front colour yields exactly those 24 and nothing for same or opposite pairs.
+  White on top with red in front gives orange left, yellow right, green under,
+  blue behind — the cube as its owner described it. Mirror images and another
+  cube's pairings are rejected with the reason; both look plausible and cannot
+  be built.
 - every lesson matches the solver: the algorithms it teaches are generators
   the solver actually uses, and the cross stage teaches none.
 - phases complete in order and stay complete; progress counters read full

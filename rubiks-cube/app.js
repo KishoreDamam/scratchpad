@@ -156,7 +156,12 @@ function loadScheme() {
   } catch (err) {
     return { ...DEFAULT_SCHEME };
   }
-  const usable = saved && FACE_ORDER.every((f) => COLOUR_KEYS.includes(saved[f]));
+  // A scheme stored before the colours changed can describe a cube that no
+  // longer exists, so check it against the real orientations rather than just
+  // its shape.
+  const usable = saved
+    && FACE_ORDER.every((f) => COLOUR_KEYS.includes(saved[f]))
+    && isRealScheme(saved);
   return usable ? saved : { ...DEFAULT_SCHEME };
 }
 
