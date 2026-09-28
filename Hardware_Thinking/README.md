@@ -17,8 +17,8 @@ VLSI mastery. **`ROADMAP.md` has the full plan** — every season, every episode
 the lab project that goes with each, and an honest account of what listening can
 and cannot do for you.
 
-**Season 1 — The Mental Model** is written and is below. Seasons 2 through 8 are
-planned and not yet written.
+**Seasons 1 and 2 are written** and mapped below. Seasons 3 through 8 are planned
+and not yet written.
 
 **Season 1 — The Mental Model.** Twelve episodes, a bit over ten minutes each,
 about two and a half hours in total. That is one commuting day if you listen
@@ -55,14 +55,41 @@ paper needed. All of them are answerable in your head.
 | 10 | Bring-up | The ladder of doubt |
 | 11 | Constraints are the design | Why sequential thinking wins here |
 
+## Season 2 map — RTL That Synthesises
+
+The gap between RTL that simulates correctly and RTL that becomes good silicon.
+Twelve episodes, about eleven to thirteen minutes each, ~2.3 hours.
+
+| # | Episode | The one idea |
+|---|---|---|
+| 01 | Blocking and non-blocking | One rule, applied mechanically, kills a whole class of sim/silicon mismatch |
+| 02 | The latch you did not ask for | Incompleteness is a request for memory |
+| 03 | Reset architecture | Assert asynchronously, release synchronously |
+| 04 | What the tool actually builds | Synthesis optimises within your structure, never across it |
+| 05 | Adders and the carry chain | A comparison is a subtraction; a counter is both, in a loop |
+| 06 | Multipliers and hard blocks | Land in the hard block; never write a divider |
+| 07 | Muxes, priority and one-hot | An else-if chain is a chain and a case is a tree |
+| 08 | FIFOs done properly | Equal pointers mean full *and* empty; stop on almost-full |
+| 09 | Arbiters | Where you decide who suffers — verify the tail, not the mean |
+| 10 | Parameterisation | Every parameter multiplies the space you must verify |
+| 11 | Lint | A width mismatch is invisible until the value gets big |
+| 12 | Reviewing RTL | Review in order of what is expensive to fix later |
+
+Season 2 ends with a lab project — a parameterised FIFO and a round-robin
+arbiter, both lint-clean and self-checking. Everything in Seasons 3 to 8 uses
+them.
+
 ## Listening order
 
-Strictly zero through eleven. This is not a magazine. Episode five will not make
-sense without episode three, and episode three is a ninety-second idea stretched
-over eighteen minutes on purpose, because that idea is where most people's model
-quietly breaks.
+Strictly in order, within and across seasons. This is not a magazine. Season 1
+episode five will not make sense without episode three, and Season 2 leans on
+Season 1 constantly — episode 2.05 is built on 1.03 and 1.05, and 2.08 is built
+on 1.06 and 1.08.
 
-If you have to skip, skip 00. Never skip 02 or 03.
+If you have to skip, skip Season 1 episode 00. Never skip 1.02 or 1.03.
+
+Season 2 is the one to re-listen to while writing code. Season 1 is a model you
+absorb once; Season 2 is a set of habits, and habits need repetition.
 
 ## The files
 
@@ -70,7 +97,9 @@ If you have to skip, skip 00. Never skip 02 or 03.
 Hardware_Thinking/
 ├─ README.md                  this file
 ├─ ROADMAP.md                 the eight-season plan to front-end VLSI mastery
-├─ episodes/                  one markdown script per episode (Season 1)
+├─ episodes/
+│  ├─ s1/                     Season 1 — The Mental Model
+│  └─ s2/                     Season 2 — RTL That Synthesises
 └─ tools/
    ├─ narrate.py              strips a script down to spoken words only
    └─ AUDIO.md                how to turn the scripts into audio files

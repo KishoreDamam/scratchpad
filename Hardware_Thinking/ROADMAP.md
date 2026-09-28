@@ -55,8 +55,8 @@ shape of it, and anyone selling you a faster version is selling something.
 
 | # | Season | The gap it closes | Hours |
 |---|---|---|---|
-| 1 | The Mental Model | You think in software | 2.5 |
-| 2 | RTL That Synthesises | Your code works in simulation and not in silicon | 2.5 |
+| 1 | The Mental Model ✅ | You think in software | 2.3 |
+| 2 | RTL That Synthesises ✅ | Your code works in simulation and not in silicon | 2.3 |
 | 3 | Microarchitecture | You can code a block but cannot decide what block to build | 2.5 |
 | 4 | Verification for Designers | You cannot prove anything you build | 2.5 |
 | 5 | Timing, Synthesis and Physics | You do not know why your design is slow | 2.5 |
@@ -69,6 +69,10 @@ Seasons 2, 3 and 4 are the core. If you only ever do three, do those.
 ---
 
 ## Season 2 — RTL That Synthesises
+
+**Written.** Scripts are in `episodes/s2/`. The episode titles below are the ones
+that shipped; the planned "What the tool actually builds" landed as episode 4 and
+the arithmetic pair as 5 and 6, as planned.
 
 **Premise.** There is a gap between RTL that simulates correctly and RTL that
 becomes good silicon, and almost nobody is taught where it is. This season is
