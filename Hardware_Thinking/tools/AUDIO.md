@@ -10,7 +10,7 @@ beat markers (headings), leaving only spoken prose.
 
 ```sh
 cd Hardware_Thinking
-python3 tools/narrate.py --out-dir /tmp/narration episodes/s1/*.md
+python3 tools/narrate.py --out-dir /tmp/narration episodes/s1-mental-model/*.md
 python3 tools/narrate.py --stats episodes/*/*.md  # word counts and runtimes
 ```
 

@@ -17,7 +17,7 @@ VLSI mastery. **`ROADMAP.md` has the full plan** — every season, every episode
 the lab project that goes with each, and an honest account of what listening can
 and cannot do for you.
 
-**Seasons 1 to 4 are written** and mapped below. Seasons 5 through 8 are
+**Seasons 1 to 5 are written** and mapped below. Seasons 6 through 8 are
 planned and not yet written.
 
 **Season 1 — The Mental Model.** Twelve episodes, a bit over ten minutes each,
@@ -127,6 +127,29 @@ Season 4's lab project verifies the Season 3 block properly and ends with a
 one-page statement of what was verified, what was not, and why that is
 acceptable.
 
+## Season 5 map — Timing, Synthesis and Physics
+
+Why your design is slow, and what front-end engineers actually do about it.
+Twelve episodes, about nine to thirteen minutes each, ~2.3 hours.
+
+| # | Episode | The one idea |
+|---|---|---|
+| 01 | What synthesis does | Elaborate, optimise, map — structure is yours; read the removal report |
+| 02 | Standard cells and libraries | Delay is a function of transition and load; hold fails at any clock speed |
+| 03 | The four constraints | An unconstrained path is a path nobody timed |
+| 04 | Static timing analysis | Exhaustive because it ignores what the logic computes |
+| 05 | False paths and multicycle paths | An exception is a claim: make hardware guarantee it, an assertion check it |
+| 06 | Clock trees | Skew and jitter are taken from somebody's logic; hold is fixed last |
+| 07 | Closing timing, part one | Name the disease — depth, fanout, late arrival, distance — then cure it |
+| 08 | Closing timing, part two | Add latency, add parallelism, or relax — and admit it early |
+| 09 | Physical awareness in RTL | Wires are slower than gates, and your RTL decides where they go |
+| 10 | Budgeting across hierarchy | Register at boundaries; write down a budget for every path that can't be |
+| 11 | Reading a timing report | The slack sum, term by term; the disease is in fewer than five lines |
+| 12 | The handoff to back-end | The files plus the reasons |
+
+Season 5's lab project synthesises the verified block, closes its critical path
+three different ways, and records what each fix cost.
+
 ## Listening order
 
 Strictly in order, within and across seasons. This is not a magazine. Season 1
@@ -146,16 +169,17 @@ asks whether you are done.
 
 ```
 Hardware_Thinking/
-├─ README.md                  this file
-├─ ROADMAP.md                 the eight-season plan to front-end VLSI mastery
+├─ README.md                           this file
+├─ ROADMAP.md                          the eight-season plan to front-end VLSI mastery
 ├─ episodes/
-│  ├─ s1/                     Season 1 — The Mental Model
-│  ├─ s2/                     Season 2 — RTL That Synthesises
-│  ├─ s3/                     Season 3 — Microarchitecture
-│  └─ s4/                     Season 4 — Verification for Designers
+│  ├─ s1-mental-model/                 Season 1 — The Mental Model
+│  ├─ s2-rtl-that-synthesises/         Season 2 — RTL That Synthesises
+│  ├─ s3-microarchitecture/            Season 3 — Microarchitecture
+│  ├─ s4-verification-for-designers/   Season 4 — Verification for Designers
+│  └─ s5-timing-synthesis-physics/     Season 5 — Timing, Synthesis and Physics
 └─ tools/
-   ├─ narrate.py              strips a script down to spoken words only
-   └─ AUDIO.md                how to turn the scripts into audio files
+   ├─ narrate.py                       strips a script down to spoken words only
+   └─ AUDIO.md                         how to turn the scripts into audio files
 ```
 
 Each script is a plain markdown file. The spoken text is the prose. Lines

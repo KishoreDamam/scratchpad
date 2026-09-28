@@ -59,7 +59,7 @@ shape of it, and anyone selling you a faster version is selling something.
 | 2 | RTL That Synthesises ✅ | Your code works in simulation and not in silicon | 2.3 |
 | 3 | Microarchitecture ✅ | You can code a block but cannot decide what block to build | 2.6 |
 | 4 | Verification for Designers ✅ | You cannot prove anything you build | 2.3 |
-| 5 | Timing, Synthesis and Physics | You do not know why your design is slow | 2.5 |
+| 5 | Timing, Synthesis and Physics ✅ | You do not know why your design is slow | 2.3 |
 | 6 | Power, Clocks and Domains | Your design works and burns too much, intermittently | 2.5 |
 | 7 | Interfaces, IP and SoC | You build blocks, not systems | 2.5 |
 | 8 | DFT, Reliability and the Craft | Your block is not manufacturable or maintainable | 2.5 |
@@ -70,8 +70,8 @@ Seasons 2, 3 and 4 are the core. If you only ever do three, do those.
 
 ## Season 2 — RTL That Synthesises
 
-**Written.** Scripts are in `episodes/s2/`, twelve episodes exactly as planned
-below.
+**Written.** Scripts are in `episodes/s2-rtl-that-synthesises/`,
+twelve episodes exactly as planned below.
 
 **Premise.** There is a gap between RTL that simulates correctly and RTL that
 becomes good silicon, and almost nobody is taught where it is. This season is
@@ -105,8 +105,8 @@ minute, where the latches, the reset problems and the critical path are.
 
 ## Season 3 — Microarchitecture
 
-**Written.** Scripts are in `episodes/s3/`, twelve episodes exactly as planned
-below.
+**Written.** Scripts are in `episodes/s3-microarchitecture/`,
+twelve episodes exactly as planned below.
 
 **Premise.** Coding is not designing. This season is about deciding *what to
 build* — the step that happens before any RTL exists and that determines whether
@@ -140,8 +140,8 @@ budget, and a defensible argument for why that structure and not another.
 
 ## Season 4 — Verification for Designers
 
-**Written.** Scripts are in `episodes/s4/`, twelve episodes exactly as planned
-below.
+**Written.** Scripts are in `episodes/s4-verification-for-designers/`,
+twelve episodes exactly as planned below.
 
 **Premise.** Season 1 gave you the philosophy. This is the practice, in the
 languages and frameworks the industry actually uses. Even if you never become a
@@ -174,6 +174,9 @@ been verified, what has not, and why that is acceptable.
 ---
 
 ## Season 5 — Timing, Synthesis and Physics
+
+**Written.** Scripts are in `episodes/s5-timing-synthesis-physics/`,
+twelve episodes exactly as planned below.
 
 **Premise.** Season 1, episode 3 told you timing exists. This season is what
 front-end engineers actually do about it, which is a large fraction of the job
