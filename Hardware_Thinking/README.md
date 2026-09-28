@@ -17,8 +17,8 @@ VLSI mastery. **`ROADMAP.md` has the full plan** — every season, every episode
 the lab project that goes with each, and an honest account of what listening can
 and cannot do for you.
 
-**Seasons 1 and 2 are written** and mapped below. Seasons 3 through 8 are planned
-and not yet written.
+**Seasons 1, 2 and 3 are written** and mapped below. Seasons 4 through 8 are
+planned and not yet written.
 
 **Season 1 — The Mental Model.** Twelve episodes, a bit over ten minutes each,
 about two and a half hours in total. That is one commuting day if you listen
@@ -79,6 +79,29 @@ Season 2 ends with a lab project — a parameterised FIFO and a round-robin
 arbiter, both lint-clean and self-checking. Everything in Seasons 3 to 8 uses
 them.
 
+## Season 3 map — Microarchitecture
+
+Deciding *what* to build, before any RTL exists. Twelve episodes, about twelve to
+fourteen minutes each, ~2.6 hours.
+
+| # | Episode | The one idea |
+|---|---|---|
+| 01 | Spec to block diagram | Cut where the rate changes or the working set changes |
+| 02 | Cycle accounting | Clock rate over item rate sets the area-time dial for you |
+| 03 | Buffering and latency hiding | Cover the wait; it costs bandwidth × delay in storage |
+| 04 | Double buffering | Block-granularity dependency wants two buffers and a handshake |
+| 05 | Credit-based flow control | Round-trip delay becomes throughput, not correctness |
+| 06 | Interconnect topology | Write the traffic matrix; most cells are empty |
+| 07 | Caches, part one | A cache is a bet on reuse — if you can predict, don't cache |
+| 08 | Caches, part two | Coherence's real cost is the state space you must verify |
+| 09 | Hazards and forwarding | Interleave until the dependency distance exceeds the depth |
+| 10 | Partitioning and hierarchy | A boundary is timing, verification, ownership and physical at once |
+| 11 | Modelling before RTL | Two models: bit-accurate without timing, timed without bit accuracy |
+| 12 | The architecture document | Pin down what is expensive to change; leave the rest open |
+
+Season 3's lab project is one streaming block built in the right order —
+document, then functional model, then performance model, then RTL.
+
 ## Listening order
 
 Strictly in order, within and across seasons. This is not a magazine. Season 1
@@ -89,7 +112,9 @@ on 1.06 and 1.08.
 If you have to skip, skip Season 1 episode 00. Never skip 1.02 or 1.03.
 
 Season 2 is the one to re-listen to while writing code. Season 1 is a model you
-absorb once; Season 2 is a set of habits, and habits need repetition.
+absorb once; Season 2 is a set of habits, and habits need repetition. Season 3 is
+the one to re-listen to at the *start* of a project, when the decisions it covers
+are still cheap.
 
 ## The files
 
@@ -99,7 +124,8 @@ Hardware_Thinking/
 ├─ ROADMAP.md                 the eight-season plan to front-end VLSI mastery
 ├─ episodes/
 │  ├─ s1/                     Season 1 — The Mental Model
-│  └─ s2/                     Season 2 — RTL That Synthesises
+│  ├─ s2/                     Season 2 — RTL That Synthesises
+│  └─ s3/                     Season 3 — Microarchitecture
 └─ tools/
    ├─ narrate.py              strips a script down to spoken words only
    └─ AUDIO.md                how to turn the scripts into audio files
