@@ -58,7 +58,7 @@ shape of it, and anyone selling you a faster version is selling something.
 | 1 | The Mental Model ✅ | You think in software | 2.3 |
 | 2 | RTL That Synthesises ✅ | Your code works in simulation and not in silicon | 2.3 |
 | 3 | Microarchitecture ✅ | You can code a block but cannot decide what block to build | 2.6 |
-| 4 | Verification for Designers | You cannot prove anything you build | 2.5 |
+| 4 | Verification for Designers ✅ | You cannot prove anything you build | 2.3 |
 | 5 | Timing, Synthesis and Physics | You do not know why your design is slow | 2.5 |
 | 6 | Power, Clocks and Domains | Your design works and burns too much, intermittently | 2.5 |
 | 7 | Interfaces, IP and SoC | You build blocks, not systems | 2.5 |
@@ -139,6 +139,9 @@ budget, and a defensible argument for why that structure and not another.
 ---
 
 ## Season 4 — Verification for Designers
+
+**Written.** Scripts are in `episodes/s4/`, twelve episodes exactly as planned
+below.
 
 **Premise.** Season 1 gave you the philosophy. This is the practice, in the
 languages and frameworks the industry actually uses. Even if you never become a

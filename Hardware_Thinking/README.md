@@ -17,7 +17,7 @@ VLSI mastery. **`ROADMAP.md` has the full plan** — every season, every episode
 the lab project that goes with each, and an honest account of what listening can
 and cannot do for you.
 
-**Seasons 1, 2 and 3 are written** and mapped below. Seasons 4 through 8 are
+**Seasons 1 to 4 are written** and mapped below. Seasons 5 through 8 are
 planned and not yet written.
 
 **Season 1 — The Mental Model.** Twelve episodes, a bit over ten minutes each,
@@ -102,6 +102,31 @@ fourteen minutes each, ~2.6 hours.
 Season 3's lab project is one streaming block built in the right order —
 document, then functional model, then performance model, then RTL.
 
+## Season 4 map — Verification for Designers
+
+Proving that what you built is what you decided, in the languages and frameworks
+the industry uses. Twelve episodes, about eleven to thirteen minutes each, ~2.3
+hours.
+
+| # | Episode | The one idea |
+|---|---|---|
+| 01 | SystemVerilog for verification | The testbench is software; at the boundary, drive after the edge and sample before it |
+| 02 | Constrained random, properly | You are programming a solver; the default distribution avoids the boundaries |
+| 03 | Functional coverage | Code coverage cannot see a feature that was never built |
+| 04 | Assertions | Pair every implication with a cover on its trigger, or it may be vacuous |
+| 05 | Scoreboards and transactions | Compare meanings, not signals; a scoreboard that saw nothing will pass |
+| 06 | UVM, part one | Built for reuse: the same agent drives at block level and watches at chip level |
+| 07 | UVM, part two | Ends at time zero, or never ends — both are objection bugs |
+| 08 | Formal verification | A proof is exactly as honest as its assumptions; reachable covers check them |
+| 09 | Regression and closure | Red must always mean something; three hundred failures are three bugs |
+| 10 | Debugging someone else's failure | The failure is where the bug was noticed, not where it happened |
+| 11 | The verification plan | Feature, method, measurement, priority — and the stopping rule fixed in advance |
+| 12 | Risk-based stopping | You never finish; you decide where to stop, and say so in writing |
+
+Season 4's lab project verifies the Season 3 block properly and ends with a
+one-page statement of what was verified, what was not, and why that is
+acceptable.
+
 ## Listening order
 
 Strictly in order, within and across seasons. This is not a magazine. Season 1
@@ -114,7 +139,8 @@ If you have to skip, skip Season 1 episode 00. Never skip 1.02 or 1.03.
 Season 2 is the one to re-listen to while writing code. Season 1 is a model you
 absorb once; Season 2 is a set of habits, and habits need repetition. Season 3 is
 the one to re-listen to at the *start* of a project, when the decisions it covers
-are still cheap.
+are still cheap. Season 4 is the one to re-listen to at the *end*, when somebody
+asks whether you are done.
 
 ## The files
 
@@ -125,7 +151,8 @@ Hardware_Thinking/
 ├─ episodes/
 │  ├─ s1/                     Season 1 — The Mental Model
 │  ├─ s2/                     Season 2 — RTL That Synthesises
-│  └─ s3/                     Season 3 — Microarchitecture
+│  ├─ s3/                     Season 3 — Microarchitecture
+│  └─ s4/                     Season 4 — Verification for Designers
 └─ tools/
    ├─ narrate.py              strips a script down to spoken words only
    └─ AUDIO.md                how to turn the scripts into audio files
