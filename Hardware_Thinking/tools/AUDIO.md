@@ -15,14 +15,30 @@ python -m venv .venv
 
 That brings Manim, Piper and a bundled ffmpeg; nothing is installed system-wide.
 
+## Audio, whole series or one season
+
+```sh
+.venv/Scripts/python tools/media/build_audio.py                          # all episodes
+.venv/Scripts/python tools/media/build_audio.py episodes/s1-*/*.md       # one season
+```
+
+MP3s land in `build/audio/<season folder>/`. The chosen voice (2026-09-29) is
+Piper `en_GB-northern_english_male-medium` at pace 1.45, about 160 words per
+minute, picked by ear over `en_GB-alba-medium` and `en_US-ryan-high`. Season 1
+renders to about 2 h 8 min. Keep `-j` modest: each job runs many CPU threads.
+
+Known limitation: Piper rushes some short one-sentence paragraphs (the rate
+check flags them; re-rendering does not change the result, since Piper is
+deterministic for a given text).
+
 ## Audio, per episode
 
 ```sh
 PY=.venv/Scripts/python
 EP=episodes/s1-mental-model/ep03-setup-and-hold.md
 $PY tools/media/segment.py  $EP -o build/s1ep03/segments.json
-$PY tools/media/tts.py render build/s1ep03/segments.json --engine piper --voice en_GB-alba-medium --pace 1.3
-$PY tools/media/assemble.py build/s1ep03/segments.json "build/s1ep03/piper-en_GB-alba-medium@1.3/clips.json"
+$PY tools/media/tts.py render build/s1ep03/segments.json --engine piper --voice en_GB-northern_english_male-medium --pace 1.45
+$PY tools/media/assemble.py build/s1ep03/segments.json "build/s1ep03/piper-en_GB-northern_english_male-medium@1.45/clips.json"
 ```
 
 - **segment.py** splits the script into spoken paragraphs, the unit of sync.
@@ -53,7 +69,7 @@ narration timeline, so a new voice or pace re-times the video with no edits.
 ```sh
 $PY -m manim -ql tools/media/video/s1ep03.py SetupAndHold --media_dir build/s1ep03/video   # preview
 $PY -m manim -qh --frame_rate 30 tools/media/video/s1ep03.py SetupAndHold --media_dir build/s1ep03/video   # 1080p30
-cd tools/media && ../../$PY mux.py ../../build/s1ep03/video/videos/s1ep03/1080p30/SetupAndHold.mp4     "../../build/s1ep03/piper-en_GB-alba-medium@1.3"
+cd tools/media && ../../$PY mux.py ../../build/s1ep03/video/videos/s1ep03/1080p30/SetupAndHold.mp4     "../../build/s1ep03/piper-en_GB-northern_english_male-medium@1.45"
 ```
 
 Set `TIH_TIMELINE=<path to timeline.json>` to render against a different voice.

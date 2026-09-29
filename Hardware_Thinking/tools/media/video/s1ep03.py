@@ -454,5 +454,5 @@ SCENES = {
 
 class SetupAndHold(Scene):
     def construct(self):
-        run(self, timeline_path("s1ep03", "piper-en_GB-alba-medium@1.3"), SCENES,
+        run(self, timeline_path("s1ep03", "piper-en_GB-northern_english_male-medium@1.45"), SCENES,
             title="Setup and hold", subtitle="Season 1 · Episode 3")
