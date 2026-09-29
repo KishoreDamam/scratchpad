@@ -204,7 +204,8 @@ Hardware_Thinking/
 │  └─ s6-power-clocks-domains/         Season 6 — Power, Clocks and Domains
 └─ tools/
    ├─ narrate.py                       strips a script down to spoken words only
-   └─ AUDIO.md                         how to turn the scripts into audio files
+   ├─ media/                           audio and explainer-video pipeline
+   └─ AUDIO.md                         how to turn the scripts into audio and video
 ```
 
 Each script is a plain markdown file. The spoken text is the prose. Lines

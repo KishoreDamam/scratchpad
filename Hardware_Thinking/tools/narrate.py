@@ -17,32 +17,35 @@ import sys
 WORDS_PER_MINUTE = 145  # unhurried narration
 
 
-def narrate(text: str) -> str:
-    lines = text.splitlines()
-
-    # Drop a leading '---' fenced front matter block.
+def split_front_matter(lines: list[str]) -> tuple[list[str], list[str]]:
+    """Return (front matter lines, body lines). Front matter may be empty."""
     if lines and lines[0].strip() == "---":
         try:
             end = lines.index("---", 1)
-            lines = lines[end + 1:]
+            return lines[1:end], lines[end + 1:]
         except ValueError:
             pass
+    return [], lines
 
-    kept = []
-    for line in lines:
-        stripped = line.strip()
-        if stripped.startswith(">"):      # production note
-            continue
-        if stripped.startswith("#"):      # beat marker
-            continue
-        if stripped == "---":             # rule
-            continue
-        kept.append(line)
 
-    body = "\n".join(kept)
+def is_unspoken(line: str) -> bool:
+    """Production notes, beat markers and rules are never read aloud."""
+    stripped = line.strip()
+    return stripped.startswith(">") or stripped.startswith("#") or stripped == "---"
+
+
+def strip_inline(body: str) -> str:
+    """Remove bold, italic and code markers, keeping their text."""
     body = re.sub(r"\*\*(.+?)\*\*", r"\1", body, flags=re.S)   # bold
     body = re.sub(r"(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)", r"\1", body, flags=re.S)
-    body = body.replace("`", "")
+    return body.replace("`", "")
+
+
+def narrate(text: str) -> str:
+    _, lines = split_front_matter(text.splitlines())
+    kept = [line for line in lines if not is_unspoken(line)]
+
+    body = strip_inline("\n".join(kept))
     body = re.sub(r"\n{3,}", "\n\n", body)
     return body.strip() + "\n"
 

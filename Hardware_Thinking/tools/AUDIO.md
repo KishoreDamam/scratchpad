@@ -1,65 +1,78 @@
-# Turning the scripts into audio
+# Turning the scripts into audio and video
 
-The scripts are the deliverable; audio is a render of them. **No audio files
-have been generated yet** — this file is how to do it when you want it.
+The scripts are the deliverable; audio and video are renders of them. The
+pipeline lives in `tools/media/` and is described in
+`docs/superpowers/specs/2026-09-29-audio-video-pipeline-design.md` at the repo
+root. Generated media goes to `build/` (gitignored) and can always be re-made.
 
-## Step 1 — get clean narration text
-
-`narrate.py` strips the front matter, the production notes (`>` lines) and the
-beat markers (headings), leaving only spoken prose.
+## Setup, once
 
 ```sh
 cd Hardware_Thinking
-python3 tools/narrate.py --out-dir /tmp/narration episodes/s1-mental-model/*.md
-python3 tools/narrate.py --stats episodes/*/*.md  # word counts and runtimes
+python -m venv .venv
+.venv/Scripts/python -m pip install -r tools/media/requirements.txt   # bin/ on macOS/Linux
 ```
 
-The `--stats` runtime estimate assumes 145 words per minute, which is unhurried
-narration. A faster reader will come in under it.
+That brings Manim, Piper and a bundled ffmpeg; nothing is installed system-wide.
 
-## Step 2 — pick an engine
-
-**Higgsfield (available in this session).** There is a `generate_audio` tool
-wired into this environment, plus `list_voices` and `create_voice`. This is the
-lowest-friction path from here: pick a voice, feed it an episode's narration
-text, get a file back. It spends account credits, so it is opt-in — ask for it
-and I will run a single episode first as a pilot before committing the season.
-
-**Local, free, no network.** `piper` is the best open text-to-speech for this
-kind of long-form listening and runs comfortably on a laptop CPU:
+## Audio, per episode
 
 ```sh
-pip install piper-tts
-piper -m en_GB-alba-medium -f ep02.wav < /tmp/narration/ep02-the-clock.txt
+PY=.venv/Scripts/python
+EP=episodes/s1-mental-model/ep03-setup-and-hold.md
+$PY tools/media/segment.py  $EP -o build/s1ep03/segments.json
+$PY tools/media/tts.py render build/s1ep03/segments.json --engine piper --voice en_GB-alba-medium --pace 1.3
+$PY tools/media/assemble.py build/s1ep03/segments.json "build/s1ep03/piper-en_GB-alba-medium@1.3/clips.json"
 ```
 
-**macOS, already installed.**
+- **segment.py** splits the script into spoken paragraphs, the unit of sync.
+- **tts.py** renders one clip per paragraph, cached by content, so reruns only
+  render edited paragraphs. It flags clips whose speaking rate is far from the
+  voice's median — the signature of truncated or garbled output.
+- **assemble.py** joins the clips (0.4 s between paragraphs, 1.2 s between
+  beats) into a tagged 64 kbps mono MP3, plus `timeline.json` and an `.srt`.
+
+`--pace` is Piper's length scale. The Piper voices speak at 190–210 words per
+minute natively, far too fast for this material; 1.3–1.45 brings them to about
+160.
+
+**External engines** (e.g. Higgsfield, driven from a Claude session): use
+`tts.py pending` to list paragraphs without a clip and `tts.py import` to bring
+each rendered file in. Pilot cost on 2026-09-29: 1.3 credits for a 36-word
+paragraph, so roughly 3,700–4,700 credits for Seasons 1–6.
+
+**Comparing voices:** `tools/media/compare.py build/s1ep03 --from 28 --to 29`
+cuts the same passage from every rendered voice and writes a page with players.
+
+## Video, per episode
+
+Explainer videos are Manim scenes keyed to `> visual: <scene>` cue lines in the
+script (production notes, so never spoken). Each scene's length comes from the
+narration timeline, so a new voice or pace re-times the video with no edits.
 
 ```sh
-say -v Daniel -o ep02.aiff -f /tmp/narration/ep02-the-clock.txt
+$PY -m manim -ql tools/media/video/s1ep03.py SetupAndHold --media_dir build/s1ep03/video   # preview
+$PY -m manim -qh --frame_rate 30 tools/media/video/s1ep03.py SetupAndHold --media_dir build/s1ep03/video   # 1080p30
+cd tools/media && ../../$PY mux.py ../../build/s1ep03/video/videos/s1ep03/1080p30/SetupAndHold.mp4     "../../build/s1ep03/piper-en_GB-alba-medium@1.3"
 ```
 
-**Cloud.** ElevenLabs, Google Cloud TTS, Amazon Polly. All fine. Twenty thousand
-words for the whole season is a small job for any of them.
+Set `TIH_TIMELINE=<path to timeline.json>` to render against a different voice.
+Reusable drawing pieces (clock wave, register, shaded windows, sliders, cards)
+are in `tools/media/visuals/components.py`.
 
-## Step 3 — make it listenable in the car
-
-Convert to MP3 and tag it so the episodes show up in order in whatever app you
-use:
+## Tests
 
 ```sh
-ffmpeg -i ep02.wav -codec:a libmp3lame -b:a 64k ep02.mp3
-ffmpeg -i ep02.wav -metadata title="02 — The clock" \
-       -metadata album="Thinking in Hardware" -metadata track="3/12" \
-       -codec:a libmp3lame -b:a 64k ep02.mp3
+$PY -m pytest tools/media/tests
 ```
 
-Sixty-four kilobits mono is plenty for speech and keeps the whole season around
-seventy megabytes.
+The round-trip test proves that segmentation reproduces `narrate.py`'s spoken
+text exactly, for every episode.
 
-For a real podcast app rather than a folder of files, generate an RSS feed
-pointing at the MP3s and host it anywhere private. Most apps will accept an
-arbitrary feed URL.
+## Listening in the car
+
+For a podcast app rather than a folder of files, generate an RSS feed pointing
+at the MP3s and host it anywhere private. Most apps accept an arbitrary feed URL.
 
 ## Notes on how the scripts were written for speech
 

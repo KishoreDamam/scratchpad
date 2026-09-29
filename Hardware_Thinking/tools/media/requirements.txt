@@ -1,0 +1,4 @@
+imageio-ffmpeg==0.6.0
+manim==0.21.0
+piper-tts==1.8.0
+pytest==9.1.1

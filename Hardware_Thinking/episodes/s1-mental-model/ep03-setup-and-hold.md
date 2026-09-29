@@ -11,6 +11,8 @@ one_thing: Being correct is easy. Being correct inside a window that is a fracti
 
 ## Where we are
 
+> visual: where-we-are
+
 Yesterday we got time back. We built a register — look, copy, hold — and we
 agreed that the design only has to be right at one instant per cycle, the clock
 edge. Between edges, chaos is allowed.
@@ -23,6 +25,8 @@ an instant, and it is not an instant, and everything difficult about this
 profession lives in the difference.
 
 ## The problem
+
+> visual: edge-window
 
 Let me ask a question that sounds stupid and is not.
 
@@ -47,6 +51,8 @@ another at the back, and what comes out is neither.
 There is your window. A little before the edge, and a little after it, during
 which the input must be absolutely motionless. Not correct — *motionless*.
 
+> visual: photograph
+
 The best way I know to hold this in your head is a photograph. The clock edge is
 the shutter. The exposure is not instantaneous; it takes a moment. If the
 subject is still moving when the shutter opens, you get a blur. If the subject
@@ -57,6 +63,8 @@ The two halves of that window have names, and these two names are on every
 timing report you will ever read.
 
 ## The turn, part one: setup
+
+> visual: setup
 
 The time *before* the edge during which the input must already be stable is
 called **setup time**.
@@ -74,6 +82,8 @@ What is left over, after you subtract all of that from the clock period, is
 called **slack**. If slack is positive, you made it. If slack is negative, you
 did not, and the number tells you by how much.
 
+> visual: critical-path
+
 And here is why this matters more than it sounds: slack is reported for the
 *worst* path in your design, and improving any other path does absolutely
 nothing. You can spend a week making ninety-nine paths faster and the report
@@ -89,6 +99,8 @@ is no fourth move.
 
 ## The turn, part two: hold
 
+> visual: hold-window
+
 Now the other half of the window, and this is the one that breaks people's
 models, so I am going to take it slowly.
 
@@ -102,6 +114,8 @@ Every instinct you own says early is fine. Early is safe. If the answer shows up
 ahead of schedule, what possible harm is there?
 
 Here is the harm.
+
+> visual: hold-race
 
 Picture two registers in a row with a little logic between them. Call them A and
 B. The clock edge arrives at both of them at the same instant, because that is
@@ -122,6 +136,8 @@ of capturing the old one*. The subject moved during the exposure. The photograph
 is a blur. B captures neither the old value nor the new one reliably, and your
 design is broken.
 
+> visual: hold-clock
+
 That is a hold violation. And notice something genuinely alarming about it:
 **slowing the clock down does not fix it.**
 
@@ -137,6 +153,8 @@ violation is a *dead chip*. It will not work at any speed. And it is a silicon
 bug, not a software bug: if it reaches fabrication, no amount of changing the
 clock, the voltage, or the firmware brings it back.
 
+> visual: hold-fix
+
 The fix, by the way, is wonderfully crude. If the path is too fast, you make it
 slower. You insert delay — literally, deliberately, components whose only
 purpose is to waste time. Somewhere in nearly every chip you have ever used,
@@ -144,6 +162,8 @@ there is logic that exists purely to be slow. There is something very honest
 about that.
 
 ## The part that makes it hard
+
+> visual: pvt
 
 Now let me tell you why this is a career rather than an afternoon.
 
@@ -175,6 +195,8 @@ That gap is what the whole timing-closure phase of a project is fighting over.
 
 ## The cost
 
+> visual: cost
+
 What this takes away from you is the idea that correctness is about logic.
 
 You can have flawless logic. Every equation right, every case handled, every
@@ -191,11 +213,15 @@ That is the shift. Logic is table stakes. Time is the profession.
 
 ## The one thing
 
+> visual: one-thing
+
 A signal can be too late, and a signal can be too early, and only one of those
 is fixed by slowing down. Being correct is easy. Being correct inside the window
 is the job.
 
 ## Commute exercise
+
+> visual: exercise
 
 Two registers, back to back, with nothing between them — output of the first
 wired straight into the input of the second. No logic at all. The shortest
