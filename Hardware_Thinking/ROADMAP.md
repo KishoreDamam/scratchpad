@@ -60,7 +60,7 @@ shape of it, and anyone selling you a faster version is selling something.
 | 3 | Microarchitecture ✅ | You can code a block but cannot decide what block to build | 2.6 |
 | 4 | Verification for Designers ✅ | You cannot prove anything you build | 2.3 |
 | 5 | Timing, Synthesis and Physics ✅ | You do not know why your design is slow | 2.3 |
-| 6 | Power, Clocks and Domains | Your design works and burns too much, intermittently | 2.5 |
+| 6 | Power, Clocks and Domains ✅ | Your design works and burns too much, intermittently | 2.2 |
 | 7 | Interfaces, IP and SoC | You build blocks, not systems | 2.5 |
 | 8 | DFT, Reliability and the Craft | Your block is not manufacturable or maintainable | 2.5 |
 
@@ -210,6 +210,9 @@ list of causes and candidate fixes without guessing.
 ---
 
 ## Season 6 — Power, Clocks and Domains
+
+**Written.** Scripts are in `episodes/s6-power-clocks-domains/`,
+twelve episodes exactly as planned below.
 
 **Premise.** Power is now a first-class specification, not an afterthought. And
 the domain problems — clock, reset, power — are where intermittent field

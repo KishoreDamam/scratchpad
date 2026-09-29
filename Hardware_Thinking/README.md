@@ -17,8 +17,8 @@ VLSI mastery. **`ROADMAP.md` has the full plan** — every season, every episode
 the lab project that goes with each, and an honest account of what listening can
 and cannot do for you.
 
-**Seasons 1 to 5 are written** and mapped below. Seasons 6 through 8 are
-planned and not yet written.
+**Seasons 1 to 6 are written** and mapped below. Seasons 7 and 8 are planned
+and not yet written.
 
 **Season 1 — The Mental Model.** Twelve episodes, a bit over ten minutes each,
 about two and a half hours in total. That is one commuting day if you listen
@@ -150,6 +150,30 @@ Twelve episodes, about nine to thirteen minutes each, ~2.3 hours.
 Season 5's lab project synthesises the verified block, closes its critical path
 three different ways, and records what each fix cost.
 
+## Season 6 map — Power, Clocks and Domains
+
+Where the energy goes, how to stop spending it, and the domain borders where
+intermittent field failures come from. Twelve episodes, about ten to fourteen
+minutes each, ~2.2 hours.
+
+| # | Episode | The one idea |
+|---|---|---|
+| 01 | Where the power goes | Switching, short-circuit, leakage — you cannot fix one with the other's tools |
+| 02 | Clock gating | You write the enable; the tool writes a glitch-free gate |
+| 03 | Architectural gating | The cheapest operation is the one you do not perform |
+| 04 | Power gating and retention | Stop, save, isolate, switch off — and the reverse; the order is the design |
+| 05 | Multi-voltage design | Every power crossing needs a level answer and an "off" answer |
+| 06 | DVFS | Energy goes with V²; voltage first going up, frequency first going down |
+| 07 | Power intent files | A separate specification, agreed with whoever knows what each signal means |
+| 08 | Clock architecture | Clocks are a plan; the cheapest crossing is the one you avoided |
+| 09 | Reset architecture | Reset is a sequence — who, in what order, with which clocks, what survives |
+| 10 | CDC signoff | Structural and functional; a clean report on a wrong clock plan proves nothing |
+| 11 | Reset domain crossing | An asynchronous reset is a crossing even inside one clock domain |
+| 12 | Power numbers | A structure of terms with visible assumptions, given as a range |
+
+Season 6's lab project adds clock gating and a second clock domain to the block,
+runs CDC signoff, and ends with a one-page clock, reset and power domain map.
+
 ## Listening order
 
 Strictly in order, within and across seasons. This is not a magazine. Season 1
@@ -176,7 +200,8 @@ Hardware_Thinking/
 │  ├─ s2-rtl-that-synthesises/         Season 2 — RTL That Synthesises
 │  ├─ s3-microarchitecture/            Season 3 — Microarchitecture
 │  ├─ s4-verification-for-designers/   Season 4 — Verification for Designers
-│  └─ s5-timing-synthesis-physics/     Season 5 — Timing, Synthesis and Physics
+│  ├─ s5-timing-synthesis-physics/     Season 5 — Timing, Synthesis and Physics
+│  └─ s6-power-clocks-domains/         Season 6 — Power, Clocks and Domains
 └─ tools/
    ├─ narrate.py                       strips a script down to spoken words only
    └─ AUDIO.md                         how to turn the scripts into audio files
