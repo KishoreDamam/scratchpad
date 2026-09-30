@@ -36,7 +36,7 @@ def timeline_path(episode_id: str, default_voice: str) -> pathlib.Path:
 class Beat:
     """A scene's slice of the video clock."""
 
-    def __init__(self, scene: Scene, start: float, end: float, marks: dict[int, float]):
+    def __init__(self, scene: Scene, start: float, end: float, marks: dict[int, dict]):
         self.scene, self.start, self.end, self.marks = scene, start, end, marks
 
     @property
@@ -58,7 +58,23 @@ class Beat:
 
     def until(self, segment_id: int) -> None:
         """Hold until the narration reaches the start of this paragraph."""
-        self.wait_until(self.marks[segment_id])
+        self.wait_until(self.marks[segment_id]["start"])
+
+    def word_time(self, segment_id: int, phrase: str) -> float:
+        """Estimated moment `phrase` is spoken, by its position in the paragraph's text.
+
+        Speech runs at a near-constant rate within a paragraph, so the character
+        offset is a good proxy; it keeps keyword pops within a fraction of a second.
+        """
+        mark = self.marks[segment_id]
+        index = mark["text"].lower().find(phrase.lower())
+        if index < 0:
+            raise ValueError(f"'{phrase}' is not in paragraph {segment_id}")
+        return mark["start"] + (mark["end"] - mark["start"]) * index / len(mark["text"])
+
+    def until_word(self, segment_id: int, phrase: str, lead: float = 0.2) -> None:
+        """Hold until just before `phrase` is spoken, so a reveal lands on the word."""
+        self.wait_until(self.word_time(segment_id, phrase) - lead)
 
     def finish(self) -> None:
         self.wait_until(self.end)
@@ -97,7 +113,8 @@ def run(scene: Scene, timeline: pathlib.Path, scenes: dict[str, Callable[[Scene,
     scene.wait(LEAD - 1.6)
     scene.play(FadeOut(title_card), run_time=0.8)
 
-    marks = {s["id"]: s["start"] + LEAD for s in segments}
+    marks = {s["id"]: {"start": s["start"] + LEAD, "end": s["end"] + LEAD, "text": s["text"]}
+             for s in segments}
     late = []
     for i, group in enumerate(groups):
         start = group["start"] + LEAD

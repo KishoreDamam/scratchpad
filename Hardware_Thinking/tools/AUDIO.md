@@ -73,6 +73,16 @@ cd tools/media && ../../$PY mux.py ../../build/s1ep03/video/videos/s1ep03/1080p3
 ```
 
 Set `TIH_TIMELINE=<path to timeline.json>` to render against a different voice.
+`mux.py --burn` also burns the captions into the picture for muted playback.
+Captions are at most two lines of 42 characters, split at sentence ends; scenes
+keep clear of the bottom caption band (`CAPTION_SAFE_Y` in the scene file).
+
+Scenes can sync to a word, not just a paragraph: `beat.until_word(seg, "hold
+time")` estimates when the phrase is spoken from its position in the paragraph.
+Vocabulary terms appear as corner chips (`term`) on the word that names them.
+The craft rules follow the `manim` and `explainer-video` skills from
+`iart-ai/manim-skills` and `iart-ai/explainer-video-skills` (installed at user
+level with `npx skills add iart-ai/<pack> -g -y`).
 Reusable drawing pieces (clock wave, register, shaded windows, sliders, cards)
 are in `tools/media/visuals/components.py`.
 

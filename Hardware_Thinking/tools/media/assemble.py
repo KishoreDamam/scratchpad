@@ -7,7 +7,7 @@ paragraphs and a longer one between beats, then writes, next to clips.json:
   <episode>.wav        the joined narration (kept for video muxing)
   <episode>.mp3        64 kbps mono, ID3-tagged
   timeline.json        start and end of every segment, in seconds
-  <episode>.srt        one caption per segment
+  <episode>.srt        captions of at most two 42-character lines
 
     python tools/media/assemble.py build/s1ep03/segments.json build/s1ep03/piper-en_GB-alba-medium/clips.json
 """
@@ -22,6 +22,8 @@ import wave
 
 import imageio_ffmpeg
 
+from captions import cues, srt_time, to_srt  # noqa: F401  (srt_time re-exported)
+
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 PARAGRAPH_PAUSE = 0.4
@@ -32,14 +34,6 @@ SEASON_TITLES = {
     6: "Power, Clocks and Domains", 7: "Interfaces, IP and SoC",
     8: "DFT, Reliability and the Craft",
 }
-
-
-def srt_time(seconds: float) -> str:
-    ms = round(seconds * 1000)
-    h, ms = divmod(ms, 3_600_000)
-    m, ms = divmod(ms, 60_000)
-    s, ms = divmod(ms, 1000)
-    return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
 
 
 def build_timeline(segments: list[dict], clips: dict[int, dict]) -> list[dict]:
@@ -93,9 +87,7 @@ def main() -> int:
         json.dumps({"episode": name, "title": episode["title"], "segments": timeline},
                    indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
-    (out_dir / f"{name}.srt").write_text("".join(
-        f"{i}\n{srt_time(e['start'])} --> {srt_time(e['end'])}\n{e['text']}\n\n"
-        for i, e in enumerate(timeline, start=1)), encoding="utf-8")
+    (out_dir / f"{name}.srt").write_text(to_srt(cues(timeline)), encoding="utf-8")
 
     wav = out_dir / f"{name}.wav"
     write_wav(timeline, clips, wav)

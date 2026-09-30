@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import textwrap
 
-from manim import (DOWN, LEFT, RIGHT, UP, Polygon, Rectangle, Text, VGroup,
-                   VMobject)
+from manim import (DOWN, LEFT, RIGHT, UP, UR, FadeIn, Polygon, Rectangle, RoundedRectangle,
+                   Text, VGroup, VMobject)
 
 BG = "#0f1419"
 FG = "#e6edf3"
@@ -107,6 +107,19 @@ def knob_at(slider_group: VGroup, fraction: float):
     return track.get_left() + (track.get_right() - track.get_left()) * fraction
 
 
+def fade_up(*mobjects, **kwargs) -> FadeIn:
+    """The one entrance used everywhere: a short rise while fading in."""
+    return FadeIn(*mobjects, shift=UP * 0.15, **kwargs)
+
+
+def term(text: str, color: str) -> VGroup:
+    """A vocabulary chip for the top-right corner, shown as the narrator names the term."""
+    word = label(text.upper(), 22, color)
+    box = RoundedRectangle(corner_radius=0.12, width=word.width + 0.45, height=word.height + 0.3)
+    box.set_stroke(color, 2).set_fill(color, 0.12)
+    return VGroup(box, word.move_to(box)).to_corner(UR, buff=0.4)
+
+
 def card(heading: str, body: str, accent: str = SETUP, width: int = 44) -> VGroup:
     head = label(heading.upper(), 24, accent)
     text = label(body, size=38, width=width)
@@ -114,4 +127,4 @@ def card(heading: str, body: str, accent: str = SETUP, width: int = 44) -> VGrou
 
 
 __all__ = ["BG", "FG", "MUTED", "SETUP", "HOLD", "BAD", "GOOD", "DATA", "label", "shaded",
-           "ClockWave", "Register", "slider", "knob_at", "card", "LEFT", "RIGHT", "UP", "DOWN"]
+           "ClockWave", "Register", "slider", "knob_at", "card", "fade_up", "term", "LEFT", "RIGHT", "UP", "DOWN"]

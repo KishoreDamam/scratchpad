@@ -20,8 +20,22 @@ from manim import (DOWN, LEFT, ORIGIN, RIGHT, UP, Arrow, Create, DashedLine, Dot
                    always_redraw, linear)
 
 from visuals.components import (BAD, DATA, FG, GOOD, HOLD, MUTED, SETUP, ClockWave,
-                                Register, card, knob_at, label, shaded, slider)
+                                Register, card, fade_up, knob_at, label, shaded, slider, term)
 from visuals.episode import Beat, run, timeline_path
+
+
+def keyword(b: Beat, segment_id: int, phrase: str, text: str, color: str):
+    """Show a vocabulary chip as the narrator says the term; returns it."""
+    chip = term(text, color)
+    b.until_word(segment_id, phrase)
+    previous = getattr(b, "chip", None)
+    b.play(fade_up(chip), *([FadeOut(previous)] if previous else []), seconds=0.6)
+    b.chip = chip
+    return chip
+
+
+# Burned captions occupy the bottom of the frame; keep every scene above this line.
+CAPTION_SAFE_Y = -2.8
 
 
 def chaos(k: int) -> int:
@@ -33,11 +47,11 @@ def chaos(k: int) -> int:
 
 def where_we_are(s: Scene, b: Beat) -> None:
     reg = Register("REG").shift(UP * 1.0)
-    clock = ClockWave(periods=6, period_width=1.8, height=0.7).move_to(DOWN * 2.2)
+    clock = ClockWave(periods=6, period_width=1.8, height=0.7).move_to(DOWN * 1.9)
     clk_label = label("clock", 22, MUTED).next_to(clock, LEFT, buff=0.3)
     d_arrow = Arrow(reg.d() + LEFT * 2.4, reg.d(), buff=0, color=DATA, stroke_width=4)
     q_arrow = Arrow(reg.q(), reg.q() + RIGHT * 2.4, buff=0, color=GOOD, stroke_width=4)
-    b.play(FadeIn(reg), Create(clock), FadeIn(clk_label), Create(d_arrow), Create(q_arrow),
+    b.play(fade_up(reg), Create(clock), fade_up(clk_label), Create(d_arrow), Create(q_arrow),
            seconds=2.0)
 
     periods = ValueTracker(0.0)      # time, measured in clock periods
@@ -62,7 +76,7 @@ def where_we_are(s: Scene, b: Beat) -> None:
         color=HOLD, stroke_width=3))
     caption = label("chaos between edges — only the edge counts", 26, MUTED).to_edge(UP)
     s.add(d_text, q_text, cursor)
-    b.play(FadeIn(caption), seconds=1.0)
+    b.play(fade_up(caption), seconds=1.0)
     b.play(periods.animate.set_value(5.95), share=0.6, rate_func=linear)
     b.until(2)
     question = label("…but is the edge really an instant?", 34, FG).to_edge(UP)
@@ -77,24 +91,24 @@ def edge_window(s: Scene, b: Beat) -> None:
     edge = Line((x, clock.low() - 0.6, 0), (x, clock.high() + 0.6, 0), color=HOLD, stroke_width=3)
     ask = label("how long does “looking” take?", 34).to_edge(UP)
     b.play(Create(clock), seconds=1.5)
-    b.play(Create(edge), FadeIn(ask), seconds=1.2)
+    b.play(Create(edge), fade_up(ask), seconds=1.2)
 
     b.until(5)
     stage = VGroup(clock, edge)
     b.play(stage.animate.scale(3.2, about_point=(x, clock.get_center()[1], 0)), seconds=3.0)
     grab = shaded(x - 0.35, x + 0.35, -2.4, 1.6, FG, 0.18)
-    grab_label = label("the grab — tens of picoseconds, not zero", 28).to_edge(DOWN, buff=0.4)
-    b.play(FadeOut(edge), FadeIn(grab), FadeIn(grab_label), seconds=1.5)
+    grab_label = label("the grab — tens of picoseconds, not zero", 28).next_to(ask, DOWN, buff=0.3)
+    b.play(FadeOut(edge), fade_up(grab), fade_up(grab_label), seconds=1.5)
 
-    b.until(7)
+    b.until_word(7, "already still")
     before = shaded(x - 1.6, x - 0.35, -2.4, 1.6, SETUP, 0.3)
-    before_label = label("already still", 28, SETUP).next_to(before, UP)
-    b.play(FadeIn(before), FadeIn(before_label), seconds=1.5)
+    before_label = label("already\nstill", 28, SETUP).next_to(before, LEFT, buff=0.25)
+    b.play(fade_up(before), fade_up(before_label), seconds=1.5)
 
-    b.until(8)
+    b.until_word(8, "stay still")
     after = shaded(x + 0.35, x + 1.4, -2.4, 1.6, HOLD, 0.3)
-    after_label = label("stays still", 28, HOLD).next_to(after, UP)
-    b.play(FadeIn(after), FadeIn(after_label), seconds=1.5)
+    after_label = label("stays\nstill", 28, HOLD).next_to(after, RIGHT, buff=0.25)
+    b.play(fade_up(after), fade_up(after_label), seconds=1.5)
 
     b.until(9)
     window = label("the window: not correct — motionless", 36).to_edge(UP)
@@ -104,7 +118,7 @@ def edge_window(s: Scene, b: Beat) -> None:
 # --------------------------------------------------------------------------- 10-11
 
 def photograph(s: Scene, b: Beat) -> None:
-    frame_l = Rectangle(width=4.2, height=2.8).set_stroke(FG, 3).shift(LEFT * 3.2 + UP * 0.3)
+    frame_l = Rectangle(width=4.2, height=2.8).set_stroke(FG, 3).shift(LEFT * 3.2 + UP * 0.9)
     frame_r = frame_l.copy().shift(RIGHT * 6.4)
     shutter_l = Rectangle(width=4.2, height=0.18).set_fill(SETUP, 1).set_stroke(width=0)
     shutter_l.next_to(frame_l, DOWN, buff=0.25)
@@ -112,20 +126,20 @@ def photograph(s: Scene, b: Beat) -> None:
     b.play(Create(frame_l), Create(frame_r), seconds=1.2)
 
     still = Dot(frame_l.get_center(), radius=0.22, color=DATA)
-    b.play(FadeIn(still), GrowFromEdge(shutter_l, LEFT), seconds=2.0)
-    b.play(FadeIn(label("still → sharp", 30, GOOD).next_to(shutter_l, DOWN)), seconds=0.8)
+    b.play(fade_up(still), GrowFromEdge(shutter_l, LEFT), seconds=2.0)
+    b.play(fade_up(label("still → sharp", 30, GOOD).next_to(shutter_l, DOWN)), seconds=0.8)
 
     start = frame_r.get_center() + LEFT * 1.2
     trail = VGroup(*[Dot(start + RIGHT * 0.3 * i, radius=0.22, color=DATA)
                      .set_opacity(0.15 + 0.1 * i) for i in range(9)])
-    b.play(GrowFromEdge(shutter_r, LEFT), FadeIn(trail, lag_ratio=0.3), seconds=2.5)
-    b.play(FadeIn(label("moving → blur\nnot a photograph of anything", 30, BAD)
+    b.play(GrowFromEdge(shutter_r, LEFT), fade_up(trail, lag_ratio=0.3), seconds=2.5)
+    b.play(fade_up(label("moving → blur\nnot a photograph of anything", 30, BAD)
                   .next_to(shutter_r, DOWN)), seconds=0.8)
 
     b.until(11)
     names = VGroup(label("before the shutter: SETUP", 32, SETUP),
                    label("after the shutter: HOLD", 32, HOLD)).arrange(RIGHT, buff=1.2).to_edge(UP)
-    b.play(FadeIn(names, lag_ratio=0.4), seconds=1.5)
+    b.play(fade_up(names, lag_ratio=0.4), seconds=1.5)
 
 
 # --------------------------------------------------------------------------- 12-15
@@ -141,8 +155,9 @@ def setup(s: Scene, b: Beat) -> None:
                         label("next edge", 22, MUTED).next_to(edges[1], UP))
     window = shaded(CAPTURE - SETUP_W, CAPTURE, 0, 2.3, SETUP, 0.35)
     window_label = label("setup", 26, SETUP).next_to(window, DOWN, buff=0.15)
-    b.play(Create(axis), Create(edges), FadeIn(edge_names), seconds=1.5)
-    b.play(FadeIn(window), FadeIn(window_label), seconds=1.2)
+    b.play(Create(axis), Create(edges), fade_up(edge_names), seconds=1.5)
+    keyword(b, 12, "setup time", "setup time", SETUP)
+    b.play(fade_up(window), fade_up(window_label), seconds=1.2)
 
     arrival = ValueTracker(0.5)
     marker = always_redraw(lambda: DashedLine((arrival.get_value(), 0, 0),
@@ -150,11 +165,11 @@ def setup(s: Scene, b: Beat) -> None:
     marker_label = always_redraw(lambda: label("data settles", 22, DATA)
                                  .next_to(marker, UP, buff=0.1))
     b.until(13)
-    b.play(FadeIn(marker), FadeIn(marker_label), seconds=1.0)
+    b.play(fade_up(marker), fade_up(marker_label), seconds=1.0)
     s.add(marker, marker_label)
 
     b.until(14)
-    y = -1.4
+    y = -1.1
 
     def bar():
         a = arrival.get_value()
@@ -180,14 +195,15 @@ def setup(s: Scene, b: Beat) -> None:
 
     budget, budget_labels = always_redraw(bar), always_redraw(bar_labels)
     heading = label("period − clock→Q − setup = what logic may use", 28).to_edge(UP)
-    b.play(FadeIn(budget), FadeIn(budget_labels), FadeIn(heading), seconds=1.5)
+    b.play(fade_up(budget), fade_up(budget_labels), fade_up(heading), seconds=1.5)
     s.add(budget, budget_labels)
 
-    b.until(15)
-    b.play(arrival.animate.set_value(3.2), seconds=5.0)
-    b.play(arrival.animate.set_value(4.3), seconds=3.0)
-    s.wait(1.5)
-    b.play(arrival.animate.set_value(1.5), seconds=3.0)
+    keyword(b, 15, "called slack", "slack", GOOD)
+    left = b.end - b.now() - 0.2
+    b.play(arrival.animate.set_value(3.2), seconds=left * 0.3)
+    b.play(arrival.animate.set_value(4.3), seconds=left * 0.25)
+    s.wait(left * 0.15)
+    b.play(arrival.animate.set_value(1.5), seconds=left * 0.3)
 
 
 # --------------------------------------------------------------------------- 16-17
@@ -202,22 +218,23 @@ def critical_path(s: Scene, b: Beat) -> None:
                     for i, w in enumerate(lengths)])
     line = DashedLine((deadline, 3.0, 0), (deadline, -2.3, 0), color=FG)
     line_label = label("clock period", 22).next_to(line, UP, buff=0.1)
-    worst = label("worst slack: −0.5", 30, BAD).move_to((4.6, 1.5, 0))
-    b.play(FadeIn(bars, lag_ratio=0.1), Create(line), FadeIn(line_label), seconds=2.5)
-    b.play(FadeIn(worst), Indicate(bars[6], color=BAD), seconds=1.5)
+    worst = label("worst slack: −0.5", 30, BAD).move_to((5.1, 1.5, 0))
+    b.play(fade_up(bars, lag_ratio=0.1), Create(line), fade_up(line_label), seconds=2.5)
+    b.play(fade_up(worst), Indicate(bars[6], color=BAD), seconds=1.5)
 
     others = [bar for i, bar in enumerate(bars) if i != 6]
     b.play(*[bar.animate.stretch(0.6, 0, about_edge=LEFT) for bar in others], seconds=4.0)
     b.play(Indicate(worst, color=BAD), seconds=1.2)
-    b.play(FadeIn(label("ninety-nine paths faster:\nreport unchanged", 26, MUTED)
+    b.play(fade_up(label("ninety-nine paths faster:\nreport unchanged", 26, MUTED)
                   .next_to(worst, DOWN, buff=0.5)), seconds=1.0)
+    keyword(b, 16, "critical path", "critical path", BAD)
 
     b.until(17)
     fixes = VGroup(label("1  shallower logic", 28),
                    label("2  pipeline it (ep. 5)", 28),
                    label("3  slower clock", 28)).arrange(DOWN, aligned_edge=LEFT, buff=0.3)
-    fixes.move_to((4.4, -1.5, 0))
-    b.play(FadeIn(fixes, lag_ratio=0.6), seconds=4.0)
+    fixes.move_to((5.0, -1.5, 0))
+    b.play(fade_up(fixes, lag_ratio=0.6), seconds=4.0)
     b.play(bars[6].animate.stretch(0.8, 0, about_edge=LEFT).set_fill(GOOD, 0.8),
            Transform(worst, label("worst slack: +0.3", 30, GOOD).move_to(worst)), seconds=2.5)
 
@@ -234,15 +251,16 @@ def hold_window(s: Scene, b: Beat) -> None:
     axis, edge = timing_axis()
     setup_w = shaded(-1.4, 0, 0, 2.4, SETUP, 0.35)
     hold_w = shaded(0, 1.1, 0, 2.4, HOLD, 0.35)
-    b.play(Create(axis), Create(edge), FadeIn(setup_w), seconds=1.5)
-    b.play(FadeIn(label("setup", 26, SETUP).next_to(setup_w, UP)), seconds=0.6)
-    b.play(FadeIn(hold_w), FadeIn(label("hold", 26, HOLD).next_to(hold_w, UP)), seconds=1.2)
+    b.play(Create(axis), Create(edge), fade_up(setup_w), seconds=1.5)
+    b.play(fade_up(label("setup", 26, SETUP).next_to(setup_w, UP)), seconds=0.6)
+    keyword(b, 19, "hold time", "hold time", HOLD)
+    b.play(fade_up(hold_w), fade_up(label("hold", 26, HOLD).next_to(hold_w, UP)), seconds=1.2)
     heading = label("hold: stay still AFTER the edge", 34).to_edge(UP)
-    b.play(FadeIn(heading), seconds=1.0)
+    b.play(fade_up(heading), seconds=1.0)
 
-    b.until(19)
+    b.until_word(20, "too early")
     early = DashedLine((0.5, 0, 0), (0.5, 2.1, 0), color=BAD)
-    b.play(Create(early), FadeIn(label("the next value arrives here", 24, BAD)
+    b.play(Create(early), fade_up(label("the next value arrives here", 24, BAD)
                                    .next_to(early, DOWN, buff=0.5)), seconds=1.5)
     b.play(Transform(heading, label("a signal can arrive too EARLY", 38, BAD).to_edge(UP)),
            seconds=1.2)
@@ -295,7 +313,7 @@ class Race:
                    rate_func=linear)
         verdict = label("hold met" if met else "blur — hold violation", 28, GOOD if met else BAD)
         verdict.next_to(self.b, DOWN, buff=0.3)
-        s.play(self.b.box.animate.set_stroke(GOOD if met else BAD), FadeIn(verdict), run_time=0.6)
+        s.play(self.b.box.animate.set_stroke(GOOD if met else BAD), fade_up(verdict), run_time=0.6)
         s.wait(1.0)
         s.play(FadeOut(verdict), FadeOut(dot), FadeOut(bar), FadeOut(tag),
                self.b.box.animate.set_stroke(FG), run_time=0.5)
@@ -304,21 +322,22 @@ class Race:
 
 def hold_race(s: Scene, b: Beat) -> None:
     race = Race()
-    b.play(FadeIn(race.group), seconds=1.5)
+    b.play(fade_up(race.group), seconds=1.5)
     b.until(24)
-    b.play(FadeIn(race.old_value()), seconds=1.0)
+    b.play(fade_up(race.old_value()), seconds=1.0)
     b.until(25)
-    b.play(FadeIn(label("the same edge launches A's new value", 28).to_edge(UP)), seconds=1.0)
+    b.play(fade_up(label("the same edge launches A's new value", 28).to_edge(UP)), seconds=1.0)
     b.until(27)
     race.run(s, b, travel=1.2)
     race.run(s, b, travel=1.2)
 
 
 def hold_clock(s: Scene, b: Beat) -> None:
-    race = Race(y=-0.6)
+    race = Race(y=-0.3)
     wave = ClockWave(periods=4, period_width=1.6, height=0.5).move_to(UP * 2.4)
     rate = label("1 GHz", 30).next_to(wave, RIGHT, buff=0.4)
-    b.play(FadeIn(race.group), Create(wave), FadeIn(rate), seconds=1.5)
+    b.play(fade_up(race.group), Create(wave), fade_up(rate), seconds=1.5)
+    keyword(b, 28, "hold violation", "hold violation", BAD)
     race.run(s, b, travel=1.2)
     for text, periods in (("1 MHz", 2), ("1 kHz", 1)):
         slower = ClockWave(periods=periods, period_width=6.4 / periods, height=0.5).move_to(UP * 2.4)
@@ -328,15 +347,16 @@ def hold_clock(s: Scene, b: Beat) -> None:
     b.until(30)
     verdicts = VGroup(label("setup violation → slow chip", 30, SETUP),
                       label("hold violation → dead chip", 30, BAD)).arrange(DOWN, buff=0.3)
-    b.play(FadeOut(wave), FadeOut(rate), FadeIn(verdicts.to_edge(UP)), seconds=1.5)
+    b.play(FadeOut(wave), FadeOut(rate), fade_up(verdicts.to_edge(UP)), seconds=1.5)
 
 
 def hold_fix(s: Scene, b: Beat) -> None:
     race = Race(delay_cells=3)
-    b.play(FadeIn(race.group), seconds=1.5)
+    b.play(fade_up(race.group), seconds=1.5)
+    b.until_word(31, "insert delay")
     b.play(Indicate(race.cells, color=HOLD), seconds=1.5)
     race.run(s, b, travel=3.4)
-    b.play(FadeIn(label("logic that exists purely to be slow", 30, HOLD).to_edge(UP)),
+    b.play(fade_up(label("logic that exists purely to be slow", 30, HOLD).to_edge(UP)),
            seconds=1.0)
 
 
@@ -377,13 +397,14 @@ def pvt(s: Scene, b: Beat) -> None:
                            stroke_width=5))
 
     band = always_redraw(spread)
-    b.play(FadeIn(sliders), *[FadeIn(d) for d in dots], Create(lines), FadeIn(band),
+    b.play(fade_up(sliders), *[fade_up(d) for d in dots], Create(lines), fade_up(band),
            seconds=2.0)
     s.add(*dots, band)
+    s.add(lines)            # re-adding draws the limits and their labels over the band
     legend = VGroup(shaded(0, 0.4, 0, 0.25, DATA, 0.5),
                     label("your design's path delays (fastest to slowest)", 20, DATA)
-                    ).arrange(RIGHT, buff=0.2).move_to((x, -3.45, 0))
-    b.play(FadeIn(legend), seconds=0.8)
+                    ).arrange(RIGHT, buff=0.2).move_to((x, 2.9, 0))
+    b.play(fade_up(legend), seconds=0.8)
 
     b.until(34)
     b.play(knobs[2].animate.set_value(0.95), seconds=2.5)
@@ -391,14 +412,13 @@ def pvt(s: Scene, b: Beat) -> None:
     b.play(knobs[1].animate.set_value(0.95), seconds=2.5)
     b.until(36)
     b.play(knobs[0].animate.set_value(0.95), seconds=2.5)
-    b.until(37)
-    b.play(FadeIn(label("P · V · T", 40).to_edge(UP)), seconds=1.0)
+    keyword(b, 37, "PVT", "PVT", FG)
     b.until(38)
     for value in (0.05, 0.95, 0.05, 0.5):
         b.play(*[k.animate.set_value(value) for k in knobs], seconds=2.5)
     b.until(39)
     gap = shaded(x - 1.8, x + 1.8, bottom + 0.6, top - 0.6, GOOD, 0.12)
-    b.play(FadeIn(gap), FadeIn(label("the space your design must fit", 24, GOOD)
+    b.play(fade_up(gap), fade_up(label("the space your design must fit", 24, GOOD)
                                .next_to(gap, LEFT, buff=0.2).shift(UP * 1.4)), seconds=1.5)
 
 
@@ -408,9 +428,9 @@ def cost(s: Scene, b: Beat) -> None:
     ok = label("✓  every equation right, every test passing", 32, GOOD)
     late = label("✗  one signal forty picoseconds late on a warm day", 32, BAD)
     VGroup(ok, late).arrange(DOWN, buff=0.6, aligned_edge=LEFT).shift(UP * 0.8)
-    b.play(FadeIn(ok), seconds=1.2)
+    b.play(fade_up(ok), seconds=1.2)
     b.until(41)
-    b.play(FadeIn(late), seconds=1.2)
+    b.play(fade_up(late), seconds=1.2)
     b.until(43)
     line = VGroup(label("Logic is table stakes.", 44, FG),
                   label("Time is the profession.", 44, HOLD)).arrange(DOWN, buff=0.3)
@@ -421,7 +441,7 @@ def cost(s: Scene, b: Beat) -> None:
 def one_thing(s: Scene, b: Beat) -> None:
     text = ("A signal can be too late, and a signal can be too early, and only one of those "
             "is fixed by slowing down. Being correct inside the window is the job.")
-    b.play(FadeIn(card("the one thing", text, HOLD).move_to(ORIGIN)), seconds=1.5)
+    b.play(fade_up(card("the one thing", text, HOLD).move_to(ORIGIN)), seconds=1.5)
 
 
 def exercise(s: Scene, b: Beat) -> None:
@@ -430,18 +450,18 @@ def exercise(s: Scene, b: Beat) -> None:
     reg_b = Register("B").move_to((2.2, 0.3, 0))
     wire = Line(a.q(), reg_b.d(), color=FG, stroke_width=4)
     note = label("no logic at all — the shortest path", 26, MUTED).next_to(VGroup(a, reg_b), DOWN, buff=0.4)
-    b.play(FadeIn(heading), FadeIn(a), FadeIn(reg_b), Create(wire), seconds=2.0)
-    b.play(FadeIn(note), seconds=1.0)
+    b.play(fade_up(heading), fade_up(a), fade_up(reg_b), Create(wire), seconds=2.0)
+    b.play(fade_up(note), seconds=1.0)
     b.until(47)
     safe = label("and yet it is one of the safest things you can build", 28, GOOD)
-    b.play(FadeIn(safe.next_to(note, DOWN, buff=0.3)), seconds=1.2)
+    b.play(fade_up(safe.next_to(note, DOWN, buff=0.3)), seconds=1.2)
     b.until(48)
     why = label("?", 140, HOLD).next_to(wire, UP, buff=0.3)
-    b.play(FadeIn(why), seconds=0.8)
+    b.play(fade_up(why), seconds=0.8)
     b.play(Indicate(why, color=HOLD), seconds=1.2)
     b.until(49)
-    b.play(FadeIn(label("hint: a number engineered into the register itself", 26, MUTED)
-                  .to_edge(DOWN, buff=0.4)), seconds=1.2)
+    b.play(fade_up(label("hint: a number engineered into the register itself", 26, MUTED)
+                  .next_to(safe, DOWN, buff=0.3)), seconds=1.2)
 
 
 SCENES = {
